@@ -1,23 +1,23 @@
 K 25
 svn:wc:ra_dav:version-url
-V 52
-/svn/!svn/ver/169/trunk/Swan-Transformer/bin/example
+V 56
+/svn/!svn/ver/169/trunk/Swan-Transformer/example/example
 END
-Example.class
+Example.java
 K 25
 svn:wc:ra_dav:version-url
-V 66
-/svn/!svn/ver/169/trunk/Swan-Transformer/bin/example/Example.class
+V 69
+/svn/!svn/ver/169/trunk/Swan-Transformer/example/example/Example.java
 END
-URLParse.class
+URLParse.java
 K 25
 svn:wc:ra_dav:version-url
-V 67
-/svn/!svn/ver/169/trunk/Swan-Transformer/bin/example/URLParse.class
+V 70
+/svn/!svn/ver/169/trunk/Swan-Transformer/example/example/URLParse.java
 END
-ExampleThread.class
+ExampleThread.java
 K 25
 svn:wc:ra_dav:version-url
-V 72
-/svn/!svn/ver/169/trunk/Swan-Transformer/bin/example/ExampleThread.class
+V 75
+/svn/!svn/ver/169/trunk/Swan-Transformer/example/example/ExampleThread.java
 END

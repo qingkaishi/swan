@@ -2,7 +2,7 @@
 
 dir
 169
-https://s-w-a-n.googlecode.com/svn/trunk/Swan-Transformer/bin
+https://s-w-a-n.googlecode.com/svn/trunk/Swan-Transformer/src
 https://s-w-a-n.googlecode.com/svn
 
 
@@ -25,9 +25,6 @@ qingkaishi@gmail.com
 
 
 ff07764a-5878-be49-f674-f087a3ee0640
-
-example
-dir
 
 cn
 dir

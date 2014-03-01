@@ -2,7 +2,7 @@
 
 dir
 169
-https://s-w-a-n.googlecode.com/svn/trunk/Swan-Transformer/bin/cn/edu/nju/swan/transformer/phase2
+https://s-w-a-n.googlecode.com/svn/trunk/Swan-Transformer/src/cn/edu/nju/swan/transformer/phase2
 https://s-w-a-n.googlecode.com/svn
 
 
@@ -26,18 +26,17 @@ qingkaishi@gmail.com
 
 ff07764a-5878-be49-f674-f087a3ee0640
 
-RecursiveVisitor2.class
+RecursiveVisitor2.java
 file
 
 
 
 
-2014-02-28T16:53:17.298456Z
-07f07237303f152d2d27b9ce6b148670
+2014-02-28T16:53:17.154455Z
+55097b759976e0a94f789cb5801ed539
 2013-10-13T05:20:53.970819Z
 169
 qingkaishi@gmail.com
-has-props
 
 
 
@@ -58,20 +57,20 @@ has-props
 
 
 
-23654
+
+23436
 
-UnknownASTNodeException.class
+UnknownASTNodeException.java
 file
 
 
 
 
-2014-02-28T16:53:17.298456Z
-20424651303bc8b0547fa4a208f97224
+2014-02-28T16:53:17.154455Z
+fa30331e454432eae29e2a3f028805d1
 2013-10-13T05:20:53.970819Z
 169
 qingkaishi@gmail.com
-has-props
 
 
 
@@ -92,20 +91,20 @@ has-props
 
 
 
-374
+
+111
 
-JTPTransformer.class
+JTPTransformer.java
 file
 
 
 
 
-2014-02-28T16:53:17.298456Z
-9e928e4f70362182e3ecd424f99d4fc2
+2014-02-28T16:53:17.154455Z
+8579c3945715733cbd4d09fe2a0dff7c
 2013-10-13T05:20:53.970819Z
 169
 qingkaishi@gmail.com
-has-props
 
 
 
@@ -126,20 +125,20 @@ has-props
 
 
 
-4019
+
+3301
 
-LEAPVisitor2.class
+LEAPVisitor2.java
 file
 
 
 
 
-2014-02-28T16:53:17.298456Z
-211cc16a7307a384f1a06cc5f14d1409
+2014-02-28T16:53:17.154455Z
+6644335a65d465b6f0b33c4e2ee5ebfe
 2013-10-13T05:20:53.970819Z
 169
 qingkaishi@gmail.com
-has-props
 
 
 
@@ -160,5 +159,6 @@ has-props
 
 
 
-9576
+
+8885
 

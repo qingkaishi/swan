@@ -2,7 +2,7 @@
 
 dir
 169
-https://s-w-a-n.googlecode.com/svn/trunk/Swan-Transformer/bin/cn/edu/nju/swan/monitor
+https://s-w-a-n.googlecode.com/svn/trunk/Swan-Transformer/src/cn/edu/nju/swan/monitor
 https://s-w-a-n.googlecode.com/svn
 
 
@@ -26,18 +26,17 @@ qingkaishi@gmail.com
 
 ff07764a-5878-be49-f674-f087a3ee0640
 
-Monitor.class
+Monitor.java
 file
 
 
 
 
-2014-02-28T16:53:17.410458Z
-968cfe1d8bc65e03e4f2b233774b8c2e
+2014-02-28T16:53:17.254456Z
+57a6a63de3ad20446f3a99c3a9cf8f33
 2013-10-13T05:20:53.970819Z
 169
 qingkaishi@gmail.com
-has-props
 
 
 
@@ -58,5 +57,6 @@ has-props
 
 
 
-4059
+
+2782
 

@@ -2,7 +2,7 @@
 
 dir
 169
-https://s-w-a-n.googlecode.com/svn/trunk/Swan-Adapter/bin/cn/edu/nju/swan
+https://s-w-a-n.googlecode.com/svn/trunk/Swan-Adapter/src/cn/edu/nju/swan
 https://s-w-a-n.googlecode.com/svn
 
 
@@ -26,18 +26,17 @@ qingkaishi@gmail.com
 
 ff07764a-5878-be49-f674-f087a3ee0640
 
-TraceWriter.class
+TraceWriter.java
 file
 
 
 
 
-2014-02-28T16:53:13.794419Z
-e4f8a0c7b853a101ab931a34a42f9bf5
+2014-02-28T16:53:13.774419Z
+71bef1aa9f4b3e378bf5d89a7d6d8f5b
 2013-10-13T05:20:53.970819Z
 169
 qingkaishi@gmail.com
-has-props
 
 
 
@@ -58,20 +57,20 @@ has-props
 
 
 
-1644
+
+831
 
-MinimalLegalGraph.class
+MinimalLegalGraph.java
 file
 
 
 
 
-2014-02-28T16:53:13.794419Z
-9d42f4a90daba1a1c89afc3e23caf256
+2014-02-28T16:53:13.774419Z
+d8e287383438353636ddbe72e137add1
 2013-10-13T05:20:53.970819Z
 169
 qingkaishi@gmail.com
-has-props
 
 
 
@@ -92,20 +91,20 @@ has-props
 
 
 
-6854
+
+4929
 
-SwanAdapterMain.class
+SwanAdapterMain.java
 file
 
 
 
 
-2014-02-28T16:53:13.794419Z
-4fe8b595a580679786852e31bb3b2c97
+2014-02-28T16:53:13.774419Z
+6df120fa44b4b90e499b79d270a21a80
 2013-10-13T05:20:53.970819Z
 169
 qingkaishi@gmail.com
-has-props
 
 
 
@@ -126,5 +125,6 @@ has-props
 
 
 
-6794
+
+4259
 

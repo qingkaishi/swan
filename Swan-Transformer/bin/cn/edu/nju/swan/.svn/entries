@@ -2,7 +2,7 @@
 
 dir
 169
-https://s-w-a-n.googlecode.com/svn/trunk/Swan-Transformer/bin/cn/edu/nju/swan
+https://s-w-a-n.googlecode.com/svn/trunk/Swan-Transformer/src/cn/edu/nju/swan
 https://s-w-a-n.googlecode.com/svn
 
 
@@ -26,18 +26,17 @@ qingkaishi@gmail.com
 
 ff07764a-5878-be49-f674-f087a3ee0640
 
-Util.class
+SwanTransformerMain.java
 file
 
 
 
 
-2014-02-28T16:53:17.410458Z
-9cb8d2db6378a85173d7b9d1ca584aea
+2014-02-28T16:53:17.258456Z
+f092714c1c5171f96e5483118878e4da
 2013-10-13T05:20:53.970819Z
 169
 qingkaishi@gmail.com
-has-props
 
 
 
@@ -58,23 +57,23 @@ has-props
 
 
 
-3802
+
+1867
 
 transformer
 dir
 
-SwanTransformerMain.class
+Parameters.java
 file
 
 
 
 
-2014-02-28T16:53:17.410458Z
-9f7473f6f93eb439308a0a7d1b5b8fed
+2014-02-28T16:53:17.258456Z
+5d0393b8adb3ef5f64c10ebf164ccc82
 2013-10-13T05:20:53.970819Z
 169
 qingkaishi@gmail.com
-has-props
 
 
 
@@ -95,7 +94,8 @@ has-props
 
 
 
-3346
+
+1081
 
 tloax
 dir
@@ -103,18 +103,17 @@ dir
 monitor
 dir
 
-Parameters.class
+Util.java
 file
 
 
 
 
-2014-02-28T16:53:17.410458Z
-68ce375e076cf4cd382baa6dab95c42f
+2014-02-28T16:53:17.262456Z
+f232a8c482a5a5f22d81234a86570dfd
 2013-10-13T05:20:53.970819Z
 169
 qingkaishi@gmail.com
-has-props
 
 
 
@@ -135,5 +134,6 @@ has-props
 
 
 
-1343
+
+3096
 

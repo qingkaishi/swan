@@ -8,16 +8,11 @@ import soot.BodyTransformer;
 import soot.Modifier;
 import soot.SootClass;
 import soot.SootMethod;
-import soot.Unit;
 import soot.jimple.Jimple;
 import soot.jimple.Stmt;
-import soot.toolkits.graph.DirectedGraph;
-import soot.toolkits.graph.TrapUnitGraph;
 import soot.util.Chain;
 import cn.edu.nju.swan.Parameters;
-import cn.edu.nju.swan.SwanTransformerMain;
 import cn.edu.nju.swan.Util;
-import cn.edu.nju.swan.cfg.ControlFlowGraph;
 import cn.edu.nju.swan.transformer.Visitor;
 
 public class JTPTransformer extends BodyTransformer {
@@ -59,16 +54,6 @@ public class JTPTransformer extends BodyTransformer {
 		}
 		if (thisMethod.isSynchronized()) {
 			Parameters.isMethodSynchronized = true;
-		}
-
-		/**
-		 * by jack
-		 */
-		if (thisMethod.isConcrete()) {
-			DirectedGraph<Unit> cfg = new TrapUnitGraph(body);
-			ControlFlowGraph mycfg = new ControlFlowGraph(cfg,
-					scname, thisMethod.getSignature());
-			SwanTransformerMain.cfgs.add(mycfg);
 		}
 
 		// /////////////////////////////////////////////////

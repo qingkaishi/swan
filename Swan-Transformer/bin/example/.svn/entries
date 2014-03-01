@@ -2,7 +2,7 @@
 
 dir
 169
-https://s-w-a-n.googlecode.com/svn/trunk/Swan-Transformer/bin/example
+https://s-w-a-n.googlecode.com/svn/trunk/Swan-Transformer/example/example
 https://s-w-a-n.googlecode.com/svn
 
 
@@ -26,18 +26,17 @@ qingkaishi@gmail.com
 
 ff07764a-5878-be49-f674-f087a3ee0640
 
-URLParse.class
+ExampleThread.java
 file
 
 
 
 
-2014-02-28T16:53:17.478458Z
-379aee2d4db0438301bc70e8b60be06d
+2014-02-28T16:53:17.486458Z
+d36cfad4e88506b677b5507ac46b289a
 2013-10-13T05:20:53.970819Z
 169
 qingkaishi@gmail.com
-has-props
 
 
 
@@ -58,20 +57,20 @@ has-props
 
 
 
-2041
+
+987
 
-ExampleThread.class
+Example.java
 file
 
 
 
 
-2014-02-28T16:53:17.478458Z
-f1cab333e2543d1cad902efe1322beba
+2014-02-28T16:53:17.486458Z
+8f5d06759a5896027c4fccb5ee8b069f
 2013-10-13T05:20:53.970819Z
 169
 qingkaishi@gmail.com
-has-props
 
 
 
@@ -92,20 +91,20 @@ has-props
 
 
 
-904
+
+628
 
-Example.class
+URLParse.java
 file
 
 
 
 
-2014-02-28T16:53:17.474458Z
-18030482bb9955ae4a3c2d5e03842bea
+2014-02-28T16:53:17.486458Z
+a0d5c780e057eadd2f26f0c1ea06030e
 2013-10-13T05:20:53.970819Z
 169
 qingkaishi@gmail.com
-has-props
 
 
 
@@ -126,5 +125,6 @@ has-props
 
 
 
-1418
+
+1184
 
