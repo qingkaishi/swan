@@ -43,9 +43,9 @@ public class Swan {
             if (cl.hasOption("t")) {
                 String appname = "cn.edu.nju.software.libtransform.Transformer";
                 Class<?> c = Class.forName(appname);
-                Class[] argTypes = new Class[]{String.class};
+                Class[] argTypes = new Class[]{String[].class};
                 Method main = c.getDeclaredMethod("startTransform", argTypes);
-                String mainArgs = cl.getOptionValue("t");
+                String[] mainArgs = cl.getOptionValues("t");
                 main.invoke(null, (Object) mainArgs);
             } else if (cl.hasOption("g") && cl.hasOption("T")) {
                 String appname = "cn.edu.nju.software.libgen.Generator";

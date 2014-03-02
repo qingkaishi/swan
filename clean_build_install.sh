@@ -25,6 +25,7 @@ fi
 # clean and compile
 mvn install:install-file -Dfile=/home/ise/swan/third-party/commons-cli-1.2.jar -DartifactId=commons-cli -DgroupId=commons-cli -Dversion=1.2 -Dpackaging=jar -DgeneratePom=true
 mvn install:install-file -Dfile=/home/ise/swan/third-party/soot-2.4.0.jar -DartifactId=soot -DgroupId=soot -Dversion=2.4.0 -Dpackaging=jar -DgeneratePom=true
+mvn install:install-file -Dfile=/home/ise/swan/third-party/asm-3.1.jar -DartifactId=asm -DgroupId=asm -Dversion=3.1 -Dpackaging=jar -DgeneratePom=true
 
 mvn clean
 mvn package
