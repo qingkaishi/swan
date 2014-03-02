@@ -1,3 +1,4 @@
 *.class
 *.trace.gz
-.svn
+target
+*.jar
