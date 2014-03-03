@@ -3,6 +3,8 @@ package cn.edu.nju.software;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -27,9 +29,10 @@ public class Swan {
         opt.addOption("T", "trace", true, "the input trace.");
 
         opt.addOption("c", "test-case", true, "your test cases, e.g. \"java -cp libmonitor.jar:other-dependencies -jar xxx.jar args\".");
+        opt.addOption("P", "soot-class-path", true, "the soot class path.");
         opt.addOption("h", "help", false, "print this information.");
 
-        String formatstr = "java [java-options] -jar swan.jar [--help] [--transform <main-class>] [--generate -T] [[--record] [--replay -T] [--replay-record -T -p] [--replay-examine -T -p] <--test-cases args>]";
+        String formatstr = "java [java-options] -jar swan.jar [--help] [--transform <main-class> [-soot-class-path <args>]] [--generate -T] [[--record] [--replay -T] [--replay-record -T -p] [--replay-examine -T -p] <--test-cases args>]";
 
         try {
             CommandLineParser parser = new PosixParser();
@@ -45,8 +48,15 @@ public class Swan {
                 Class<?> c = Class.forName(appname);
                 Class[] argTypes = new Class[]{String[].class};
                 Method main = c.getDeclaredMethod("startTransform", argTypes);
-                String[] mainArgs = cl.getOptionValues("t");
-                main.invoke(null, (Object) mainArgs);
+                
+                
+                List<String> mainArgs = new ArrayList<String>();
+                mainArgs.add(cl.getOptionValue("t"));
+                if(cl.hasOption("P")){
+                    mainArgs.add(cl.getOptionValue("P"));
+                }
+                String[] argsArray = new String[mainArgs.size()];
+                main.invoke(null, (Object) mainArgs.toArray(argsArray));
             } else if (cl.hasOption("g") && cl.hasOption("T")) {
                 String appname = "cn.edu.nju.software.libgen.Generator";
                 Class<?> c = Class.forName(appname);

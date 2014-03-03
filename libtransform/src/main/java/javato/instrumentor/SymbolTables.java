@@ -35,17 +35,28 @@ import java.util.HashMap;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 public class SymbolTables {
-    private HashMap<String,Integer> table = new HashMap<String,Integer>();
-
-
+    private final HashMap<String,Integer> table = new HashMap<String,Integer>();
+    
     public int get(String name) {
-        if (!table.containsKey(name)){
-            table.put(name,table.size()+1);
+        if (table.containsKey(name)){
+            return table.get(name);
         }
-        return table.get(name);
+        return -1;
     }
     
     public int getSize(){
-    	return table.size()+1;
+    	return table.size();
+    }
+    
+    //HACKED by ise
+    public void add(String name){
+        if(!table.containsKey(name)){
+            table.put(name, this.getSize());
+        }
+    }
+    
+    //HACKED by ise
+    public void test() {
+        System.out.println(table);
     }
 }

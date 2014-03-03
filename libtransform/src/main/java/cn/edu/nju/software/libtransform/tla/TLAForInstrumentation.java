@@ -49,17 +49,15 @@ public class TLAForInstrumentation extends SceneTransformer implements Transform
     public Transformer getSootTransformer() {
         return this;
     }
-    
-    public static TLAForInstrumentation v(){
+
+    public static TLAForInstrumentation v() {
         return instance;
     }
 
     protected void internalTransform(String pn, Map map) {
-        visitor.tla = new ThreadLocalObjectsAnalysis(
-                new UnsynchronizedMhpAnalysis());
+        visitor.tla = new ThreadLocalObjectsAnalysis(new UnsynchronizedMhpAnalysis());
 
-        Iterator<SootClass> classIt = Scene.v().getApplicationClasses()
-                .iterator();
+        Iterator<SootClass> classIt = Scene.v().getApplicationClasses().iterator();
         while (classIt.hasNext()) {
             SootClass sc = classIt.next();
 

@@ -159,26 +159,27 @@ public class TransformClass {
     // HACKED by ise
     public void processAllAtOnce(String[] args, List<TransformTask> transformers) {
         String mainClass = args[0];
+        Visitor.mainClass = mainClass;
         setRecordOptions();
-        
+
         Scene.v().setSootClassPath(
                 System.getProperty("sun.boot.class.path") + File.pathSeparator
-                + System.getProperty("java.class.path"));
+                + System.getProperty("java.class.path") + File.pathSeparator + args[1]);
         SootClass appclass = Scene.v().loadClassAndSupport(mainClass);
         Scene.v().setMainClass(appclass);
 
         for (TransformTask t : transformers) {
-            PackManager.v().getPack(t.getPhase()).add(new Transform("jtp.instrumenter", t.getSootTransformer()));
-            if(t.getVisitor().observerClass != null)
+            PackManager.v().getPack(t.getPhase()).add(new Transform(t.getPhaseName(), t.getSootTransformer()));
+            if (t.getVisitor().observerClass != null) {
                 Scene.v().loadClassAndSupport(t.getVisitor().observerClass);
+            }
         }
 
-        
         String path = "./transformed_version/";
         String[] args_soot = {"-cp", ".", "-pp", "-validate", mainClass, "-d",
             path, "-f", "jimple", "-x", "jrockit.", "-x", "edu.", "-x",
             "com.", "-x", "checkers.", "-x", "org.xmlpull.", "-x",
-            "org.apache.xml.", "-x", "org.apache.xpath."};
+            "org.apache.xml.", "-x", "org.apache.xpath.", "-x", "cn.edu.nju."};
         soot.Main.main(args_soot);
         soot.G.reset();
     }
@@ -202,8 +203,6 @@ public class TransformClass {
         opt.put("pre_jimplify", "true");
         //SparkTransformer.v().transform("", opt);
         PhaseOptions.v().setPhaseOption("cg.spark", "enabled:true");
-
-        
 
         /*PackManager
          .v()

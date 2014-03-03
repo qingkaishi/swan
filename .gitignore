@@ -1,3 +1,9 @@
 *.class
 *.trace.gz
 target
+*.jimple
+transformed_version
+swan.jar
+libtransform.jar
+libmonitor.jar
+libgen.jar

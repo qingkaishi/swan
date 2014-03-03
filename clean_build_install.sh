@@ -27,6 +27,7 @@ cur=`pwd`
 self=$cur/$0
 selfdir=${self%\/*}/
 
+# third party libs
 mvn install:install-file -Dfile=$selfdir/third-party/commons-cli-1.2.jar -DartifactId=commons-cli -DgroupId=commons-cli -Dversion=1.2 -Dpackaging=jar -DgeneratePom=true
 mvn install:install-file -Dfile=$selfdir/third-party/soot-2.4.0.jar -DartifactId=soot -DgroupId=soot -Dversion=2.4.0 -Dpackaging=jar -DgeneratePom=true
 mvn install:install-file -Dfile=$selfdir/third-party/asm-3.1.jar -DartifactId=asm -DgroupId=asm -Dversion=3.1 -Dpackaging=jar -DgeneratePom=true
@@ -34,15 +35,18 @@ mvn install:install-file -Dfile=$selfdir/third-party/asm-3.1.jar -DartifactId=as
 mvn clean
 mvn package
 
+# our libs
+mvn install:install-file -Dfile=$selfdir/libmonitor/target/libmonitor-1.0-SNAPSHOT.jar -DartifactId=libmonitor -DgroupId=cn.edu.nju.software -Dversion=1.0-SNAPSHOT -Dpackaging=jar -DgeneratePom=true
+mvn install:install-file -Dfile=$selfdir/libtransform/target/libtransform-1.0-SNAPSHOT.jar -DartifactId=libtransform -DgroupId=cn.edu.nju.software -Dversion=1.0-SNAPSHOT -Dpackaging=jar -DgeneratePom=true
+mvn install:install-file -Dfile=$selfdir/libgen/target/libgen-1.0-SNAPSHOT.jar -DartifactId=libgen -DgroupId=cn.edu.nju.software -Dversion=1.0-SNAPSHOT -Dpackaging=jar -DgeneratePom=true
+
 cd $selfdir/swan
 mvn assembly:assembly
 cd $cur
+
 
 # install
 test -d $selfdir/bin || mkdir $selfdir/bin
 
 cp $selfdir/swan/target/swan-1.0-SNAPSHOT-jar-with-dependencies.jar $selfdir/bin/swan.jar
-cp $selfdir/libtransform/target/libtransform-1.0-SNAPSHOT.jar $selfdir/bin/libtransform.jar
-cp $selfdir/libgen/target/libgen-1.0-SNAPSHOT.jar $selfdir/bin/libgen.jar
-cp $selfdir/libmonitor/target/libmonitor-1.0-SNAPSHOT.jar $selfdir/bin/libmonitor.jar
-cp -r $selfdir/third-party/ $selfdir/bin
+cp $selfdir/swan/target/swan-1.0-SNAPSHOT-jar-with-dependencies.jar $selfdir/demo/swan.jar

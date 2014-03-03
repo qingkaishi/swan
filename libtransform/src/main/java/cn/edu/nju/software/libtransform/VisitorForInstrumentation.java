@@ -3,156 +3,104 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package cn.edu.nju.software.libtransform;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import javato.instrumentor.Visitor;
 import javato.instrumentor.contexts.InvokeContext;
 import javato.instrumentor.contexts.RHSContextImpl;
 import javato.instrumentor.contexts.RefContext;
+import soot.ArrayType;
+import soot.RefType;
+import soot.Scene;
 import soot.SootMethod;
+import soot.SootMethodRef;
 import soot.Value;
+import soot.VoidType;
 import soot.jimple.*;
 import soot.util.Chain;
 
 /**
- * Copyright (c) 2007-2008
- * Pallavi Joshi	<pallavi@cs.berkeley.edu>
+ * Copyright (c) 2007-2008 Pallavi Joshi	<pallavi@cs.berkeley.edu>
  * Koushik Sen <ksen@cs.berkeley.edu>
  * All rights reserved.
  * <p/>
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
+ * modification, are permitted provided that the following conditions are met:
  * <p/>
- * 1. Redistributions of source code must retain the above copyright
- * notice, this list of conditions and the following disclaimer.
+ * 1. Redistributions of source code must retain the above copyright notice,
+ * this list of conditions and the following disclaimer.
  * <p/>
- * 2. Redistributions in binary form must reproduce the above copyright
- * notice, this list of conditions and the following disclaimer in the
- * documentation and/or other materials provided with the distribution.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ * this list of conditions and the following disclaimer in the documentation
+ * and/or other materials provided with the distribution.
  * <p/>
  * 3. The names of the contributors may not be used to endorse or promote
  * products derived from this software without specific prior written
  * permission.
  * <p/>
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
- * IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
- * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
- * PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER
- * OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
- * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  */
-
 /**
  * modified from VisitorForActiveTesting.java
+ *
  * @author ise
  */
 public class VisitorForInstrumentation extends Visitor {
+
+    private static int debug_idx = 0;
 
     public VisitorForInstrumentation(Visitor visitor) {
         super(visitor);
     }
 
-
-    public int getStSize() {
-        return st.getSize();
-    }
-
-    private Stmt getStmtToBeInstrumented(Chain units, AssignStmt assignStmt, Value leftOp) {
-        Stmt cur = assignStmt;
-        Stmt succ;
-        Stmt last = (Stmt) units.getLast();
-
-        while (cur != last) {
-            succ = (Stmt) units.getSuccOf(cur);
-            if ((succ != null) && (succ instanceof InvokeStmt)) {
-                InvokeExpr iExpr = succ.getInvokeExpr();
-                if (iExpr.getMethod().getSubSignature().indexOf("<init>") != -1) {
-                    if (((InstanceInvokeExpr) iExpr).getBase() == leftOp) {
-                        return succ;
-                    }
-                }
-            }
-            cur = succ;
-        }
-        return assignStmt;
-    }
-
-    private Stmt getStmtToBeInstrumented2(SootMethod sm, Chain units, AssignStmt assignStmt,
-                                          Value objectOnWhichMethodIsInvoked, Stmt currStmtToBeInstrumented) {
-        Stmt cur = assignStmt;
-        Stmt succ;
-        Stmt last = (Stmt) units.getLast();
-
-        if (sm.getSubSignature().indexOf("<init>") != -1 && objectOnWhichMethodIsInvoked != null) {
-            while (cur != last) {
-                succ = (Stmt) units.getSuccOf(cur);
-                if ((succ != null) && (succ instanceof InvokeStmt)) {
-                    InvokeExpr iExpr = succ.getInvokeExpr();
-                    if (iExpr.getMethod().getSubSignature().indexOf("<init>") != -1) {
-                        if (((InstanceInvokeExpr) iExpr).getBase() == objectOnWhichMethodIsInvoked) {
-                            return succ;
-                        }
-                    }
-                }
-                cur = succ;
-            }
-        }
-        return currStmtToBeInstrumented;
-    }
-
-    private Value getMethodsTargetObject(SootMethod sm, Chain units) {
-        Value objectOnWhichMethodIsInvoked = null;
-        if (!sm.isStatic()) {
-            Stmt startStmt = (Stmt) units.getFirst();
-            if (startStmt instanceof IdentityStmt) {
-                objectOnWhichMethodIsInvoked = ((IdentityStmt) startStmt).getLeftOp();
-            } else {
-                System.err.println("First statement within a non-static method is not an IdentityStmt");
-                System.exit(-1);
-            }
-        }
-        return objectOnWhichMethodIsInvoked;
-    }
-
-    public void visitStmtAssign(SootMethod sm, Chain units, AssignStmt assignStmt) {
-        Value leftOp = assignStmt.getLeftOp();
-        Value rightOp = assignStmt.getRightOp();
-        if ((rightOp instanceof NewExpr)
-                || (rightOp instanceof NewArrayExpr)
-                || (rightOp instanceof NewMultiArrayExpr)) {
-            Stmt stmtToBeInstrumented = getStmtToBeInstrumented(units, assignStmt, leftOp);
-            Value objectOnWhichMethodIsInvoked = getMethodsTargetObject(sm, units);
-
-            stmtToBeInstrumented = getStmtToBeInstrumented2(sm, units, assignStmt,
-                    objectOnWhichMethodIsInvoked, stmtToBeInstrumented);
-
-            if (objectOnWhichMethodIsInvoked != null) {
-                addCallWithObjectObject(units, stmtToBeInstrumented, "myNewExprInANonStaticMethodAfter",
-                        leftOp, objectOnWhichMethodIsInvoked, false);
-            } else {
-                addCallWithObject(units, stmtToBeInstrumented, "myNewExprInAStaticMethodAfter", leftOp, false);
-            }
-        }
-        nextVisitor.visitStmtAssign(sm, units, assignStmt);
-    }
-
+    @Override
     public void visitStmtEnterMonitor(SootMethod sm, Chain units, EnterMonitorStmt enterMonitorStmt) {
-        addCallWithObject(units, enterMonitorStmt, "myLockBefore", enterMonitorStmt.getOp(), true);
+        LinkedList args = new LinkedList(); // arg list
+        args.addLast(enterMonitorStmt.getOp()); // sv obj.
+        args.addLast(IntConstant.v(st.getSize() + 1)); // sv no.
+        args.addLast(IntConstant.v(Visitor.getLineNum(enterMonitorStmt)));
+        args.addLast(IntConstant.v(debug_idx++)); // debug idx
+
+        SootMethodRef mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeLock(java.lang.Object,int,int,int)>").makeRef();
+        SootMethodRef mrafter = Scene.v().getMethod("<" + observerClass + ": void myAfterLock(java.lang.Object,int,int,int)>").makeRef();
+
+        units.insertBefore(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrbefore, args)), enterMonitorStmt);
+        units.insertAfter(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrafter, args)), enterMonitorStmt);
+
         nextVisitor.visitStmtEnterMonitor(sm, units, enterMonitorStmt);
     }
 
+    @Override
     public void visitStmtExitMonitor(SootMethod sm, Chain units, ExitMonitorStmt exitMonitorStmt) {
-        addCallWithObject(units, exitMonitorStmt, "myUnlockAfter", exitMonitorStmt.getOp(), false);
+        LinkedList args = new LinkedList(); // arg list
+        args.addLast(exitMonitorStmt.getOp()); // sv obj.
+        args.addLast(IntConstant.v(st.getSize() + 1)); // sv no.
+        args.addLast(IntConstant.v(Visitor.getLineNum(exitMonitorStmt)));
+        args.addLast(IntConstant.v(debug_idx++)); // debug idx
+
+        SootMethodRef mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeUnlock(java.lang.Object,int,int,int)>").makeRef();
+        SootMethodRef mrafter = Scene.v().getMethod("<" + observerClass + ": void myAfterUnlock(java.lang.Object,int,int,int)>").makeRef();
+
+        units.insertBefore(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrbefore, args)), exitMonitorStmt);
+        units.insertAfter(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrafter, args)), exitMonitorStmt);
+
         nextVisitor.visitStmtExitMonitor(sm, units, exitMonitorStmt);
     }
 
+    @Override
     public void visitInstanceInvokeExpr(SootMethod sm, Chain units, Stmt s, InstanceInvokeExpr invokeExpr, InvokeContext context) {
         Value base = invokeExpr.getBase();
         String sig = invokeExpr.getMethod().getSubSignature();
@@ -187,6 +135,7 @@ public class VisitorForInstrumentation extends Visitor {
         }
     }
 
+    @Override
     public void visitStaticInvokeExpr(SootMethod sm, Chain units, Stmt s, StaticInvokeExpr invokeExpr, InvokeContext context) {
         nextVisitor.visitStaticInvokeExpr(sm, units, s, invokeExpr, context);
         addCall(units, s, "myMethodEnterBefore", true);
@@ -199,39 +148,144 @@ public class VisitorForInstrumentation extends Visitor {
         }
     }
 
-
-    public void visitArrayRef(SootMethod sm, Chain units, Stmt s, ArrayRef arrayRef, RefContext context) {
-        if (context == RHSContextImpl.getInstance()) {
-            addCallWithObjectInt(units, s, "myReadBefore", arrayRef.getBase(), arrayRef.getIndex(), true);
-        } else {
-            addCallWithObjectInt(units, s, "myWriteBefore", arrayRef.getBase(), arrayRef.getIndex(), true);
-        }
-        nextVisitor.visitArrayRef(sm, units, s, arrayRef, context);
-    }
-
+    @Override
     public void visitInstanceFieldRef(SootMethod sm, Chain units, Stmt s, InstanceFieldRef instanceFieldRef, RefContext context) {
-        if (!sm.getName().equals("<init>") || !instanceFieldRef.getField().getName().equals("this$0")) {
-            Value v = IntConstant.v(st.get(instanceFieldRef.getField().getName()));
-            if (context == RHSContextImpl.getInstance()) {
-                addCallWithObjectInt(units, s, "myReadBefore", instanceFieldRef.getBase(), v, true);
-            } else {
-                addCallWithObjectInt(units, s, "myWriteBefore", instanceFieldRef.getBase(), v, true);
-            }
+        String sig = instanceFieldRef.getField().getDeclaringClass().getName()
+                + "." + instanceFieldRef.getField().getName() + ".INSTANCE";
+        int svno = st.get(sig);
+        if (svno < 0) {
+            nextVisitor.visitInstanceFieldRef(sm, units, s, instanceFieldRef, context);
+            return;
         }
+
+        LinkedList args = new LinkedList(); // arg list
+        args.addLast(instanceFieldRef); // sv obj.
+        args.addLast(IntConstant.v(svno)); // sv no.
+        args.addLast(IntConstant.v(Visitor.getLineNum(s))); // line no.
+        args.addLast(IntConstant.v(debug_idx++)); // debug idx
+
+        SootMethodRef mrbefore, mrafter;
+        if (context == RHSContextImpl.getInstance()) {
+            //read
+            mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeRead(java.lang.Object,int,int,int)>").makeRef();
+            mrafter = Scene.v().getMethod("<" + observerClass + ": void myAfterRead(java.lang.Object,int,int,int)>").makeRef();
+        } else {
+            //write
+            mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeWrite(java.lang.Object,int,int,int)>").makeRef();
+            mrafter = Scene.v().getMethod("<" + observerClass + ": void myAfterWrite(java.lang.Object,int,int,int)>").makeRef();
+        }
+
+        units.insertBefore(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrbefore, args)), s);
+        units.insertAfter(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrafter, args)), s);
+
         nextVisitor.visitInstanceFieldRef(sm, units, s, instanceFieldRef, context);
     }
 
-
+    @Override
     public void visitStaticFieldRef(SootMethod sm, Chain units, Stmt s, StaticFieldRef staticFieldRef, RefContext context) {
-        Value v1 = IntConstant.v(st.get(staticFieldRef.getField().getDeclaringClass().getName()));
-        Value v2 = IntConstant.v(st.get(staticFieldRef.getField().getName()));
-        if (context == RHSContextImpl.getInstance()) {
-            addCallWithIntInt(units, s, "myReadBefore", v1, v2, true);
-        } else {
-            addCallWithIntInt(units, s, "myWriteBefore", v1, v2, true);
+        String sig = staticFieldRef.getField().getDeclaringClass().getName() + "." + staticFieldRef.getField().getName() + ".STATIC";
+        int svno = st.get(sig);
+        if (svno < 0) {
+            nextVisitor.visitStaticFieldRef(sm, units, s, staticFieldRef, context);
+            return;
         }
+
+        LinkedList args = new LinkedList(); // arg list
+        args.addLast(staticFieldRef); // sv obj.
+        args.addLast(IntConstant.v(svno)); // sv no.
+        args.addLast(IntConstant.v(Visitor.getLineNum(s))); // line no.
+        args.addLast(IntConstant.v(debug_idx++)); // debug idx
+
+        SootMethodRef mrbefore, mrafter;
+        if (context == RHSContextImpl.getInstance()) {
+            //read
+            mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeRead(java.lang.Object,int,int,int)>").makeRef();
+            mrafter = Scene.v().getMethod("<" + observerClass + ": void myAfterRead(java.lang.Object,int,int,int)>").makeRef();
+        } else {
+            //write
+            mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeWrite(java.lang.Object,int,int,int)>").makeRef();
+            mrafter = Scene.v().getMethod("<" + observerClass + ": void myAfterWrite(java.lang.Object,int,int,int)>").makeRef();
+        }
+
+        units.insertBefore(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrbefore, args)), s);
+        units.insertAfter(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrafter, args)), s);
+
         nextVisitor.visitStaticFieldRef(sm, units, s, staticFieldRef, context);
     }
 
+    @Override
+    public void visitCaughtExceptionRef(SootMethod sm, Chain units, IdentityStmt s, CaughtExceptionRef caughtExceptionRef) {
+        LinkedList args = new LinkedList();
+        SootMethodRef myCleanMr = Scene.v().getMethod("<" + observerClass + ": void myCleanup()>").makeRef();
+        units.insertAfter(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(myCleanMr, args)), s);
+
+        nextVisitor.visitCaughtExceptionRef(sm, units, s, caughtExceptionRef);
+    }
+
+    @Override
+    public void visitMethodBegin(SootMethod sm, Chain units) {
+        if (isMainMethodInMainClass(sm)) {
+            LinkedList args = new LinkedList();
+            SootMethodRef myInitMr = Scene.v().getMethod("<" + observerClass + ": void myInit()>").makeRef();
+            units.insertBefore(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(myInitMr, args)), getFirstNonIdentityStmt(sm, units));
+        }
+
+        nextVisitor.visitMethodBegin(sm, units);
+    }
+
+    @Override
+    public void visitMethodEnd(SootMethod sm, Chain units) {
+        if (isMainMethodInMainClass(sm)) {
+            LinkedList args = new LinkedList();
+            SootMethodRef myExitMr = Scene.v().getMethod("<" + observerClass + ": void myExit()>").makeRef();
+
+            for (Stmt exit : getExits(sm, units)) {
+                if (exit instanceof ReturnVoidStmt) {
+                    units.insertBefore(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(myExitMr, args)), exit);
+                } else {
+                    units.insertAfter(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(myExitMr, args)), exit);
+                }
+            }
+        }
+
+        nextVisitor.visitMethodEnd(sm, units);
+    }
+
+    private boolean isMainMethodInMainClass(SootMethod sm) {
+        // in main class
+        if (sm.getDeclaringClass().getName().equals(Visitor.mainClass)) {
+            // function type
+            if (sm.isPublic() && sm.isStatic() && sm.getReturnType().equals(VoidType.v())
+                    && sm.getParameterCount() == 1
+                    && sm.getParameterType(0).equals(ArrayType.v(RefType.v("java.lang.String"), 1))) {
+            }
+        }
+        return false;
+    }
+
+    private Stmt getFirstNonIdentityStmt(SootMethod sm, Chain units) {
+        Stmt s = (Stmt) units.getFirst();
+        while (s instanceof IdentityStmt) {
+            s = (Stmt) units.getSuccOf(s);
+        }
+        return s;
+    }
+
+    private List<Stmt> getExits(SootMethod sm, Chain units) {
+        List<Stmt> ret = new ArrayList<Stmt>();
+
+        for (Stmt s = (Stmt) units.getFirst(); s != units.getLast(); s = (Stmt) units.getSuccOf(s)) {
+            if (s instanceof ReturnVoidStmt) {
+                ret.add(s);
+            }
+        }
+
+        Stmt last = (Stmt) units.getLast();
+        if (!(last instanceof ReturnVoidStmt)) {
+            ret.add(last);
+        }
+
+        return ret;
+    }
 
 }

@@ -19,7 +19,7 @@ import javato.instrumentor.Visitor;
  */
 public class Transformer {
 
-    // start from here!
+    // start from here! args[0] = main class; args[1] = soot class path
     public static void startTransform(String[] args) {
         List<TransformTask> trans= new ArrayList<TransformTask>();
         
@@ -42,7 +42,8 @@ public class Transformer {
         
         TransformClass processor = new TransformClass();
         processor.processAllAtOnce(args, trans);
-        Visitor.dumpIidToLine("/tmp/.iidToLine.map");//(Parameters.iidToLineMapFile);
-        pv.writeSymTblSize();
+        
+        // test
+        Visitor.st.test();
     }
 }

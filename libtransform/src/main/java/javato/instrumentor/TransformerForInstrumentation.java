@@ -73,15 +73,19 @@ public class TransformerForInstrumentation extends BodyTransformer implements Tr
         if (cName.startsWith("javato.") || cName.startsWith("java.awt.event.NativeLibLoader") || thisMethod.isAbstract() || thisMethod.isNative()) {
             return;
         }
-
-        visitor.thisClass = thisMethod.getDeclaringClass();
+        
+        if (cName.startsWith("cn.edu.nju.")){
+            return;
+        }
+        
+        Visitor.thisClass = thisMethod.getDeclaringClass();
         Chain units = body.getUnits();
 
         visitor.visitMethodBegin(thisMethod, units);
         Iterator stmtIt = units.snapshotIterator();
         while (stmtIt.hasNext()) {
             Stmt s = (Stmt) stmtIt.next();
-            visitor.thisStmt = s;
+            Visitor.thisStmt = s;
             visitor.visitStmt(thisMethod, units, s);
         }
         visitor.visitMethodEnd(thisMethod, units);

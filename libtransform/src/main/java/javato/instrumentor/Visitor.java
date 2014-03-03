@@ -50,8 +50,10 @@ public class Visitor {
     public String observerClass;
     public ThreadLocalObjectsAnalysis tla;
     
+    public static String mainClass;
+    public static SymbolTables st = new SymbolTables();
+    
     static private int counter = 0;
-    static protected SymbolTables st = new SymbolTables();
     static public Stmt thisStmt;
     static private ArrayList<String> iidToLineMap = new ArrayList<String>(10000);
     static public SootClass thisClass;
@@ -60,7 +62,7 @@ public class Visitor {
         return counter;
     }
 
-    private static int getLineNum(Host h) {
+    public static int getLineNum(Host h) {
         if (h.hasTag("LineNumberTag")) {
             return ((LineNumberTag) h.getTag("LineNumberTag")).getLineNumber();
         }
