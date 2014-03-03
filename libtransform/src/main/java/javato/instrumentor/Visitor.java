@@ -9,6 +9,7 @@ import soot.util.Chain;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import soot.jimple.toolkits.thread.ThreadLocalObjectsAnalysis;
 
 /**
  * Copyright (c) 2007-2008,
@@ -45,10 +46,12 @@ import java.util.LinkedList;
  */
 
 public class Visitor {
-    protected Visitor nextVisitor;
+    public Visitor nextVisitor;
+    public String observerClass;
+    public ThreadLocalObjectsAnalysis tla;
+    
     static private int counter = 0;
     static protected SymbolTables st = new SymbolTables();
-    protected String observerClass;// = System.getProperty("javato.call", "javato.observer.Observer");
     static public Stmt thisStmt;
     static private ArrayList<String> iidToLineMap = new ArrayList<String>(10000);
     static public SootClass thisClass;

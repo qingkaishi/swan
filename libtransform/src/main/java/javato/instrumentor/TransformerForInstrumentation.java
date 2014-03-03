@@ -1,6 +1,6 @@
 package javato.instrumentor;
 
-import cn.edu.nju.software.libtransform.MyTransformerInterface;
+import cn.edu.nju.software.libtransform.TransformTask;
 import soot.Body;
 import soot.BodyTransformer;
 import soot.SootMethod;
@@ -44,7 +44,7 @@ import soot.Transformer;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-public class TransformerForInstrumentation extends BodyTransformer implements MyTransformerInterface{
+public class TransformerForInstrumentation extends BodyTransformer implements TransformTask{
     private static TransformerForInstrumentation instance = new TransformerForInstrumentation();
     private Visitor visitor;
 

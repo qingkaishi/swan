@@ -1,6 +1,6 @@
 package javato.instrumentor;
 
-import cn.edu.nju.software.libtransform.MyTransformerInterface;
+import cn.edu.nju.software.libtransform.TransformTask;
 import org.objectweb.asm.ClassReader;
 import soot.Scene;
 
@@ -17,7 +17,6 @@ import soot.PackManager;
 import soot.PhaseOptions;
 import soot.SootClass;
 import soot.Transform;
-import soot.jimple.spark.SparkTransformer;
 import soot.options.Options;
 
 /**
@@ -158,7 +157,7 @@ public class TransformClass {
     }
 
     // HACKED by ise
-    public void processAllAtOnce(String[] args, List<MyTransformerInterface> transformers) {
+    public void processAllAtOnce(String[] args, List<TransformTask> transformers) {
         String mainClass = args[0];
         setRecordOptions();
         
@@ -168,7 +167,7 @@ public class TransformClass {
         SootClass appclass = Scene.v().loadClassAndSupport(mainClass);
         Scene.v().setMainClass(appclass);
 
-        for (MyTransformerInterface t : transformers) {
+        for (TransformTask t : transformers) {
             PackManager.v().getPack(t.getPhase()).add(new Transform("jtp.instrumenter", t.getSootTransformer()));
             if(t.getVisitor().observerClass != null)
                 Scene.v().loadClassAndSupport(t.getVisitor().observerClass);
