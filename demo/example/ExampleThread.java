@@ -14,7 +14,6 @@ public class ExampleThread extends Thread
     	}catch(Exception e)
     	{
     		e.printStackTrace();
-    		"leap_Crashed_with".equals(e);
     		System.exit(1);
     	}
     }                                                                      

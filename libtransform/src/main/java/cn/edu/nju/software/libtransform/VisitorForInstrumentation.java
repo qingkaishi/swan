@@ -20,6 +20,7 @@ import soot.SootMethodRef;
 import soot.Value;
 import soot.VoidType;
 import soot.jimple.*;
+import soot.options.Options;
 import soot.util.Chain;
 
 /**
@@ -104,47 +105,147 @@ public class VisitorForInstrumentation extends Visitor {
     public void visitInstanceInvokeExpr(SootMethod sm, Chain units, Stmt s, InstanceInvokeExpr invokeExpr, InvokeContext context) {
         Value base = invokeExpr.getBase();
         String sig = invokeExpr.getMethod().getSubSignature();
-        if (sig.equals("void wait()")) {
-            addCallWithObject(units, s, "myWaitAfter", base, false);
-        } else if (sig.equals("void wait(long)") || sig.equals("void wait(long,int)")) {
-            addCallWithObject(units, s, "myWaitAfter", base, false);
+        if (sig.equals("void wait()") || sig.equals("void wait(long)") || sig.equals("void wait(long,int)")) {
+            //addCallWithObject(units, s, "myWaitAfter", base, false);
+            LinkedList args = new LinkedList(); // arg list
+
+            args.addLast(base); // sv obj.
+            args.addLast(st.getSize() + 1); // sv no.
+            args.addLast(IntConstant.v(Visitor.getLineNum(s))); //line no.
+            args.addLast(IntConstant.v(debug_idx++)); // debug idx
+
+            SootMethodRef mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeWait(java.lang.Object,int,int,int)>").makeRef();
+            SootMethodRef mrafter = Scene.v().getMethod("<" + observerClass + ": void myAfterWait(java.lang.Object,int,int,int)>").makeRef();
+
+            units.insertBefore(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrbefore, args)), s);
+            units.insertAfter(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrafter, args)), s);
+
         } else if (sig.equals("void notify()")) {
-            addCallWithObject(units, s, "myNotifyBefore", base, true);
+            //addCallWithObject(units, s, "myNotifyBefore", base, true);
+            LinkedList args = new LinkedList(); // arg list
+
+            args.addLast(base); // sv obj.
+            args.addLast(st.getSize() + 1); // sv no.
+            args.addLast(IntConstant.v(Visitor.getLineNum(s))); //line no.
+            args.addLast(IntConstant.v(debug_idx++)); // debug idx
+
+            SootMethodRef mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeNotify(java.lang.Object,int,int,int)>").makeRef();
+            SootMethodRef mrafter = Scene.v().getMethod("<" + observerClass + ": void myAfterNotify(java.lang.Object,int,int,int)>").makeRef();
+
+            units.insertBefore(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrbefore, args)), s);
+            units.insertAfter(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrafter, args)), s);
+
         } else if (sig.equals("void notifyAll()")) {
-            addCallWithObject(units, s, "myNotifyAllBefore", base, true);
+            //addCallWithObject(units, s, "myNotifyAllBefore", base, true);
+            LinkedList args = new LinkedList(); // arg list
+
+            args.addLast(base); // sv obj.
+            args.addLast(st.getSize() + 1); // sv no.
+            args.addLast(IntConstant.v(Visitor.getLineNum(s))); //line no.
+            args.addLast(IntConstant.v(debug_idx++)); // debug idx
+
+            SootMethodRef mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeNotifyAll(java.lang.Object,int,int,int)>").makeRef();
+            SootMethodRef mrafter = Scene.v().getMethod("<" + observerClass + ": void myAfterNotifyAll(java.lang.Object,int,int,int)>").makeRef();
+
+            units.insertBefore(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrbefore, args)), s);
+            units.insertAfter(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrafter, args)), s);
+
         } else if (sig.equals("void start()") && isThreadSubType(invokeExpr.getMethod().getDeclaringClass())) {
-            addCallWithObject(units, s, "myStartBefore", base, true);
-        } else if (sig.equals("void join()") && isThreadSubType(invokeExpr.getMethod().getDeclaringClass())) {
-            addCallWithObject(units, s, "myJoinAfter", base, false);
-        } else if ((sig.equals("void join(long)") || sig.equals("void join(long,int)"))
-                && isThreadSubType(invokeExpr.getMethod().getDeclaringClass())) {
-            addCallWithObject(units, s, "myJoinAfter", base, false);
-        }
+            //addCallWithObject(units, s, "myStartBefore", base, true);
+            LinkedList args = new LinkedList(); // arg list
 
-        nextVisitor.visitInstanceInvokeExpr(sm, units, s, invokeExpr, context);
+            args.addLast(base); // sv obj.
+            args.addLast(st.getSize() + 2); // sv no.
+            args.addLast(IntConstant.v(Visitor.getLineNum(s))); //line no.
+            args.addLast(IntConstant.v(debug_idx++)); // debug idx
 
-        addCall(units, s, "myMethodEnterBefore", true);
-        addCall(units, s, "myMethodExitAfter", false);
-        if (invokeExpr.getMethod().getSubSignature().indexOf("<init>") == -1) {
-            String ssig = invokeExpr.getMethod().getSubSignature();
-            ssig = ssig.substring(ssig.indexOf(' ') + 1);
-            Value sig2 = StringConstant.v(ssig);
-            addCallWithObjectString(units, s, "myLockBefore", base, sig2, true);
-            // t = t.syncMethod() is problematic, so do not pass t
-            addCall(units, s, "myUnlockAfter", false);
+            SootMethodRef mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeThreadStart(java.lang.Object,int,int,int)>").makeRef();
+            SootMethodRef mrafter = Scene.v().getMethod("<" + observerClass + ": void myAfterThreadStart(java.lang.Object,int,int,int)>").makeRef();
+
+            units.insertBefore(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrbefore, args)), s);
+            units.insertAfter(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrafter, args)), s);
+
+        } else if ((sig.equals("void join()")
+                || sig.equals("void join(long)")
+                || sig.equals("void join(long,int)")) && isThreadSubType(invokeExpr.getMethod().getDeclaringClass())) {
+            //addCallWithObject(units, s, "myJoinAfter", base, false);
+            LinkedList args = new LinkedList(); // arg list
+
+            args.addLast(base); // sv obj.
+            args.addLast(st.getSize() + 2); // sv no.
+            args.addLast(IntConstant.v(Visitor.getLineNum(s))); //line no.
+            args.addLast(IntConstant.v(debug_idx++)); // debug idx
+
+            SootMethodRef mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeThreadJoin(java.lang.Object,int,int,int)>").makeRef();
+            SootMethodRef mrafter = Scene.v().getMethod("<" + observerClass + ": void myAfterThreadJoin(java.lang.Object,int,int,int)>").makeRef();
+
+            units.insertBefore(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrbefore, args)), s);
+            units.insertAfter(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrafter, args)), s);
+
+        } else {
+            // mine
+            if (invokeExpr.getMethod().isSynchronized()) {
+                // only handle synchronization
+                LinkedList args = new LinkedList(); // arg list
+
+                args.addLast(base); // sv obj.
+                args.addLast(st.getSize() + 1); // sv no.
+                args.addLast(IntConstant.v(Visitor.getLineNum(s))); //line no.
+                args.addLast(IntConstant.v(debug_idx++)); // debug idx
+
+                SootMethodRef mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeSynchronizedInsInvoke(java.lang.Object,int,int,int)>").makeRef();
+                SootMethodRef mrafter = Scene.v().getMethod("<" + observerClass + ": void myAfterSynchronizedInsInvoke(java.lang.Object,int,int,int)>").makeRef();
+
+                units.insertBefore(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrbefore, args)), s);
+                units.insertAfter(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrafter, args)), s);
+            }
+
+            boolean exclude = false;
+            List<String> excludes = Options.v().exclude();
+            for (String pkg : excludes) {
+                if (sm.getDeclaringClass().getPackageName().startsWith(pkg)) {
+                    exclude = true;
+                    break;
+                }
+            }
+            if (exclude) {
+                // as an instruction. args, as well as the base
+                // now it is empty, because we only record InstanceField and ... in the version
+                // args must be locals
+            }
         }
     }
 
     @Override
     public void visitStaticInvokeExpr(SootMethod sm, Chain units, Stmt s, StaticInvokeExpr invokeExpr, InvokeContext context) {
-        nextVisitor.visitStaticInvokeExpr(sm, units, s, invokeExpr, context);
-        addCall(units, s, "myMethodEnterBefore", true);
-        addCall(units, s, "myMethodExitAfter", false);
         if (invokeExpr.getMethod().isSynchronized()) {
-            addCallWithInt(units, s, "myLockBefore",
-                    IntConstant.v(st.get(invokeExpr.getMethod().getDeclaringClass().getName())), true);
-            addCallWithInt(units, s, "myUnlockAfter",
-                    IntConstant.v(st.get(invokeExpr.getMethod().getDeclaringClass().getName())), false);
+            // only handle synchronization
+            LinkedList args = new LinkedList(); // arg list
+
+            args.addLast(StringConstant.v(invokeExpr.getMethod().getDeclaringClass().getName())); // sv obj.
+            args.addLast(IntConstant.v(st.getSize() + 1)); // sv no.
+            args.addLast(IntConstant.v(Visitor.getLineNum(s))); // line no.
+            args.addLast(IntConstant.v(-1)); // debug idx !!!
+
+            SootMethodRef mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeSynchronizedStaticInvoke(java.lang.Object,int,int,int)>").makeRef();
+            SootMethodRef mrafter = Scene.v().getMethod("<" + observerClass + ": void myAfterSynchronizedStaticInvoke(java.lang.Object,int,int,int)>").makeRef();
+
+            units.insertBefore(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrbefore, args)), s);
+            units.insertAfter(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrafter, args)), s);
+        }
+
+        boolean exclude = false;
+        List<String> excludes = Options.v().exclude();
+        for (String pkg : excludes) {
+            if (sm.getDeclaringClass().getPackageName().startsWith(pkg)) {
+                exclude = true;
+                break;
+            }
+        }
+        if (exclude) {
+            // as an instruction, args
+            // now it is empty, because we only record InstanceField and ... in the version
+            // args must be locals
         }
     }
 
