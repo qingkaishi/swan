@@ -1,5 +1,6 @@
 package cn.edu.nju.software;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Method;
@@ -83,19 +84,34 @@ public class Swan {
                 }
 
                 // run test case
-                String newClassPath = "./";
+                List<String> cps = new ArrayList<String>();
                 if (cl.hasOption("P")) {
-                    newClassPath = cl.getOptionValue("P");
-                    if (!newClassPath.startsWith("/")) {
-                        String pwd = System.getProperty("user.dir");
-                        newClassPath = pwd + "/" + newClassPath;
+                    String cpstrs = cl.getOptionValue("P");
+                    String[] cpstrsplits = cpstrs.split(File.pathSeparator);
+                    for (String cp : cpstrsplits) {
+                        if (!"".equals(cp)) {
+                            cps.add(cp);
+                        }
                     }
-                }
-                if (!newClassPath.endsWith("/")) {
-                    newClassPath = newClassPath + "/";
+                } else {
+                    cps.add("./");
                 }
 
-                URL[] urls = new URL[]{new URL("file://" + newClassPath)};
+                URL[] urls = new URL[cps.size()];
+                for (int i = 0; i < cps.size(); i++) {
+                    String cp = cps.get(i);
+
+                    File file = new File(cp);
+                    if (!file.exists()) {
+                        System.err.println("The class path does not exist! " + file.getAbsolutePath());
+                        System.exit(1);
+                    }
+                    
+                    urls[i] = file.toURI().toURL();
+                    
+                    System.out.println(urls[i]);
+                }
+                
                 URLClassLoader ucl = new URLClassLoader(urls);
 
                 String testcase = cl.getOptionValue("c");
