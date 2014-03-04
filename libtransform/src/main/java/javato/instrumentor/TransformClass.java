@@ -174,9 +174,10 @@ public class TransformClass {
             }
         }
 
-        String path = "./transformed_version/";
+        String suffix = mainClass.replace('.', '_');
+        String path = "./transformed_version_" + suffix + "/";
         String[] args_soot = {"-cp", ".", "-pp", "-validate", mainClass, "-d",
-            path, "-f", "jimple", "-x", "jrockit.", "-x", "edu.", "-x",
+            path, "-f", "class", "-x", "jrockit.", "-x", "edu.", "-x",
             "com.", "-x", "checkers.", "-x", "org.xmlpull.", "-x",
             "org.apache.xml.", "-x", "org.apache.xpath.", "-x", "cn.edu.nju."};
         soot.Main.main(args_soot);

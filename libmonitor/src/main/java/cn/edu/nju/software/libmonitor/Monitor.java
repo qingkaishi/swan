@@ -7,11 +7,7 @@ package cn.edu.nju.software.libmonitor;
 
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.Date;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.Options;
@@ -114,6 +110,12 @@ public class Monitor {
     }
 
     public static void myInit(int lockNum) {
+        System.out.println("*******************************");
+        System.out.println("* Executing with Swan...");
+        System.out.println("* " + new Date(System.currentTimeMillis()));
+        System.out.println("*******************************");
+        System.out.println("");
+        
         try {
             // handle cmd line
             FileInputStream fis = new FileInputStream("/tmp/.swan.args");
@@ -136,6 +138,8 @@ public class Monitor {
             } else if (cl.hasOption("x") && cl.hasOption("T") && cl.hasOption("p") && cl.hasOption("c")) {
                 // replay-examine
                 realWorker = new ReplayExamineMonitor(lockNum);
+            } else {
+                realWorker = new EmptyMonitor(lockNum);
             }
             
             Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
@@ -161,7 +165,7 @@ public class Monitor {
 
         opt.addOption("t", "transform", true, "transform the program to an instrumented version.");
 
-        opt.addOption("r", "record", true, "record an exacution.");
+        opt.addOption("r", "record", false, "record an exacution.");
         opt.addOption("R", "replay", true, "reproduce an exacution.");
         opt.addOption("e", "replay-record", true, "replay and record an exacution as a trace.");
         opt.addOption("x", "replay-examine", true, "replay a trace to examine fixes.");

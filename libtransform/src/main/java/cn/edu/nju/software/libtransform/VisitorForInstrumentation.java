@@ -68,7 +68,7 @@ public class VisitorForInstrumentation extends Visitor {
     public void visitStmtEnterMonitor(SootMethod sm, Chain units, EnterMonitorStmt enterMonitorStmt) {
         LinkedList args = new LinkedList(); // arg list
         args.addLast(enterMonitorStmt.getOp()); // sv obj.
-        args.addLast(IntConstant.v(st.getSize() + 1)); // sv no.
+        args.addLast(IntConstant.v(st.getSize())); // sv no.
         args.addLast(IntConstant.v(Visitor.getLineNum(enterMonitorStmt)));
         args.addLast(IntConstant.v(debug_idx++)); // debug idx
 
@@ -85,7 +85,7 @@ public class VisitorForInstrumentation extends Visitor {
     public void visitStmtExitMonitor(SootMethod sm, Chain units, ExitMonitorStmt exitMonitorStmt) {
         LinkedList args = new LinkedList(); // arg list
         args.addLast(exitMonitorStmt.getOp()); // sv obj.
-        args.addLast(IntConstant.v(st.getSize() + 1)); // sv no.
+        args.addLast(IntConstant.v(st.getSize())); // sv no.
         args.addLast(IntConstant.v(Visitor.getLineNum(exitMonitorStmt)));
         args.addLast(IntConstant.v(debug_idx++)); // debug idx
 
@@ -107,7 +107,7 @@ public class VisitorForInstrumentation extends Visitor {
             LinkedList args = new LinkedList(); // arg list
 
             args.addLast(base); // sv obj.
-            args.addLast(IntConstant.v(st.getSize() + 1)); // sv no.
+            args.addLast(IntConstant.v(st.getSize())); // sv no.
             args.addLast(IntConstant.v(Visitor.getLineNum(s))); //line no.
             args.addLast(IntConstant.v(debug_idx++)); // debug idx
 
@@ -122,7 +122,7 @@ public class VisitorForInstrumentation extends Visitor {
             LinkedList args = new LinkedList(); // arg list
 
             args.addLast(base); // sv obj.
-            args.addLast(IntConstant.v(st.getSize() + 1)); // sv no.
+            args.addLast(IntConstant.v(st.getSize())); // sv no.
             args.addLast(IntConstant.v(Visitor.getLineNum(s))); //line no.
             args.addLast(IntConstant.v(debug_idx++)); // debug idx
 
@@ -137,7 +137,7 @@ public class VisitorForInstrumentation extends Visitor {
             LinkedList args = new LinkedList(); // arg list
 
             args.addLast(base); // sv obj.
-            args.addLast(IntConstant.v(st.getSize() + 1)); // sv no.
+            args.addLast(IntConstant.v(st.getSize())); // sv no.
             args.addLast(IntConstant.v(Visitor.getLineNum(s))); //line no.
             args.addLast(IntConstant.v(debug_idx++)); // debug idx
 
@@ -152,7 +152,7 @@ public class VisitorForInstrumentation extends Visitor {
             LinkedList args = new LinkedList(); // arg list
 
             args.addLast(base); // sv obj.
-            args.addLast(IntConstant.v(st.getSize() + 2)); // sv no.
+            args.addLast(IntConstant.v(st.getSize() + 1)); // sv no.
             args.addLast(IntConstant.v(Visitor.getLineNum(s))); //line no.
             args.addLast(IntConstant.v(debug_idx++)); // debug idx
 
@@ -169,7 +169,7 @@ public class VisitorForInstrumentation extends Visitor {
             LinkedList args = new LinkedList(); // arg list
 
             args.addLast(base); // sv obj.
-            args.addLast(IntConstant.v(st.getSize() + 2)); // sv no.
+            args.addLast(IntConstant.v(st.getSize() + 1)); // sv no.
             args.addLast(IntConstant.v(Visitor.getLineNum(s))); //line no.
             args.addLast(IntConstant.v(debug_idx++)); // debug idx
 
@@ -305,7 +305,7 @@ public class VisitorForInstrumentation extends Visitor {
             units.insertBefore(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(myInitMr, args)), getFirstNonIdentityStmt(sm, units));
         } else if (sm.isSynchronized()) {
             LinkedList args = new LinkedList(); // arg list
-            args.addLast(IntConstant.v(st.getSize() + 1)); // sv no.
+            args.addLast(IntConstant.v(st.getSize())); // sv no.
             args.addLast(IntConstant.v(Visitor.getLineNum(sm))); // line no.
             args.addLast(IntConstant.v(debug_idx++)); // debug idx !!!
 
@@ -327,7 +327,7 @@ public class VisitorForInstrumentation extends Visitor {
     public void visitMethodEnd(SootMethod sm, Chain units) {
         if (sm.isSynchronized()) {
             LinkedList args = new LinkedList(); // arg list        
-            args.addLast(IntConstant.v(st.getSize() + 1)); // sv no.
+            args.addLast(IntConstant.v(st.getSize())); // sv no.
             args.addLast(IntConstant.v(Visitor.getLineNum(sm))); // line no.
             args.addLast(IntConstant.v(debug_idx++)); // debug idx !!!
             SootMethodRef mrafter = null;

@@ -8,6 +8,7 @@ package cn.edu.nju.software.libmonitor;
 import cn.edu.nju.software.libmonitor.event.SwanEvent;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
@@ -52,13 +53,14 @@ public class RecordMonitor extends MonitorWorker {
         while (!threads.contains(Thread.currentThread())) {
         }
         int tid = threads.indexOf(Thread.currentThread());
-        int lockId = this.getLockObjectId(o);
+        Integer lockId = this.getLockObjectId(o);
         List<Integer> curLockIds = lockObjects.get(tid);
-        curLockIds.remove(lockId);
-
+        
         SwanEvent se = new SwanEvent(tid,
                 lockId, curLockIds, SwanEvent.AccessType.RELEASE, lineno);
         trace.add(se);
+        
+        curLockIds.remove(lockId);
     }
 
     @Override
@@ -74,13 +76,14 @@ public class RecordMonitor extends MonitorWorker {
         while (!threads.contains(Thread.currentThread())) {
         }
         int tid = threads.indexOf(Thread.currentThread());
-        int lockId = this.getLockObjectId(o);
+        Integer lockId = this.getLockObjectId(o);
         List<Integer> curLockIds = lockObjects.get(tid);
-        curLockIds.remove(lockId);
 
         SwanEvent se = new SwanEvent(tid,
                 lockId, curLockIds, SwanEvent.AccessType.WAIT_RELEASE, lineno);
-        trace.add(se);
+        trace.add(se);        
+        
+        curLockIds.remove(lockId);
     }
 
     @Override
@@ -143,6 +146,7 @@ public class RecordMonitor extends MonitorWorker {
     public void myBeforeThreadStart(Object o, int svno, int lineno, int debug) {
         locks.get(svno).lock();
         threads.add((Thread) o);
+        lockObjects.add(new ArrayList<Integer>());
         start = true;
 
         while (!threads.contains(Thread.currentThread())) {
@@ -209,13 +213,14 @@ public class RecordMonitor extends MonitorWorker {
         while (!threads.contains(Thread.currentThread())) {
         }
         int tid = threads.indexOf(Thread.currentThread());
-        int lockId = this.getLockObjectId(o);
+        Integer lockId = this.getLockObjectId(o);
         List<Integer> curLockIds = lockObjects.get(tid);
-        curLockIds.remove(lockId);
 
         SwanEvent se = new SwanEvent(tid,
                 svno, curLockIds, SwanEvent.AccessType.RELEASE, lineno);
         trace.add(se);
+        
+        curLockIds.remove(lockId);
     }
 
     @Override
@@ -257,13 +262,13 @@ public class RecordMonitor extends MonitorWorker {
                 while (!threads.contains(Thread.currentThread())) {
                 }
                 int tid = threads.indexOf(Thread.currentThread());
-                int lockId = this.getLockObjectId(c);
+                Integer lockId = this.getLockObjectId(c);
                 List<Integer> curLockIds = lockObjects.get(tid);
-                curLockIds.remove(lockId);
 
                 SwanEvent se = new SwanEvent(threads.indexOf(Thread.currentThread()),
                         svno, curLockIds, SwanEvent.AccessType.RELEASE, lineno);
                 trace.add(se);
+                curLockIds.remove(lockId);
             } catch (ClassNotFoundException ex) {
                 ex.printStackTrace();
                 System.exit(1);

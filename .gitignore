@@ -2,7 +2,7 @@
 *.trace.gz
 target
 *.jimple
-transformed_version
+transformed_version_*
 swan.jar
 libtransform.jar
 libmonitor.jar
