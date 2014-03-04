@@ -159,7 +159,6 @@ public class TransformClass {
     // HACKED by ise
     public void processAllAtOnce(String[] args, List<TransformTask> transformers) {
         String mainClass = args[0];
-        Visitor.mainClass = mainClass;
         setRecordOptions();
 
         Scene.v().setSootClassPath(

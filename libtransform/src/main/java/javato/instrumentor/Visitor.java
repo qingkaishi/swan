@@ -50,7 +50,6 @@ public class Visitor {
     public String observerClass;
     public ThreadLocalObjectsAnalysis tla;
     
-    public static String mainClass;
     public static SymbolTables st = new SymbolTables();
     
     static private int counter = 0;
@@ -601,6 +600,15 @@ public class Visitor {
             return false;
         }
         return isThreadSubType(c.getSuperclass());
+    }
+    
+    protected static boolean isSystemSubType(SootClass c) {
+        if (c.getName().equals("java.lang.System"))
+            return true;
+        if (!c.hasSuperclass()) {
+            return false;
+        }
+        return isSystemSubType(c.getSuperclass());
     }
 
     protected static boolean isRunnableSubType(SootClass c) {

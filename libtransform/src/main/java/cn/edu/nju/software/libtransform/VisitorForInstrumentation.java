@@ -110,7 +110,7 @@ public class VisitorForInstrumentation extends Visitor {
             LinkedList args = new LinkedList(); // arg list
 
             args.addLast(base); // sv obj.
-            args.addLast(st.getSize() + 1); // sv no.
+            args.addLast(IntConstant.v(st.getSize() + 1)); // sv no.
             args.addLast(IntConstant.v(Visitor.getLineNum(s))); //line no.
             args.addLast(IntConstant.v(debug_idx++)); // debug idx
 
@@ -125,7 +125,7 @@ public class VisitorForInstrumentation extends Visitor {
             LinkedList args = new LinkedList(); // arg list
 
             args.addLast(base); // sv obj.
-            args.addLast(st.getSize() + 1); // sv no.
+            args.addLast(IntConstant.v(st.getSize() + 1)); // sv no.
             args.addLast(IntConstant.v(Visitor.getLineNum(s))); //line no.
             args.addLast(IntConstant.v(debug_idx++)); // debug idx
 
@@ -140,7 +140,7 @@ public class VisitorForInstrumentation extends Visitor {
             LinkedList args = new LinkedList(); // arg list
 
             args.addLast(base); // sv obj.
-            args.addLast(st.getSize() + 1); // sv no.
+            args.addLast(IntConstant.v(st.getSize() + 1)); // sv no.
             args.addLast(IntConstant.v(Visitor.getLineNum(s))); //line no.
             args.addLast(IntConstant.v(debug_idx++)); // debug idx
 
@@ -155,7 +155,7 @@ public class VisitorForInstrumentation extends Visitor {
             LinkedList args = new LinkedList(); // arg list
 
             args.addLast(base); // sv obj.
-            args.addLast(st.getSize() + 2); // sv no.
+            args.addLast(IntConstant.v(st.getSize() + 2)); // sv no.
             args.addLast(IntConstant.v(Visitor.getLineNum(s))); //line no.
             args.addLast(IntConstant.v(debug_idx++)); // debug idx
 
@@ -172,7 +172,7 @@ public class VisitorForInstrumentation extends Visitor {
             LinkedList args = new LinkedList(); // arg list
 
             args.addLast(base); // sv obj.
-            args.addLast(st.getSize() + 2); // sv no.
+            args.addLast(IntConstant.v(st.getSize() + 2)); // sv no.
             args.addLast(IntConstant.v(Visitor.getLineNum(s))); //line no.
             args.addLast(IntConstant.v(debug_idx++)); // debug idx
 
@@ -189,7 +189,7 @@ public class VisitorForInstrumentation extends Visitor {
                 LinkedList args = new LinkedList(); // arg list
 
                 args.addLast(base); // sv obj.
-                args.addLast(st.getSize() + 1); // sv no.
+                args.addLast(IntConstant.v(st.getSize() + 1)); // sv no.
                 args.addLast(IntConstant.v(Visitor.getLineNum(s))); //line no.
                 args.addLast(IntConstant.v(debug_idx++)); // debug idx
 
@@ -218,6 +218,15 @@ public class VisitorForInstrumentation extends Visitor {
 
     @Override
     public void visitStaticInvokeExpr(SootMethod sm, Chain units, Stmt s, StaticInvokeExpr invokeExpr, InvokeContext context) {
+        String sig = invokeExpr.getMethod().getSubSignature();
+        if (sig.equals("void exit(int)") && isSystemSubType(invokeExpr.getMethod().getDeclaringClass())){
+            LinkedList args = new LinkedList();
+            SootMethodRef myExitMr = Scene.v().getMethod("<" + observerClass + ": void myExit()>").makeRef();
+            
+            units.insertBefore(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(myExitMr, args)), s);
+            return;
+        }
+        
         if (invokeExpr.getMethod().isSynchronized()) {
             // only handle synchronization
             LinkedList args = new LinkedList(); // arg list
@@ -260,7 +269,7 @@ public class VisitorForInstrumentation extends Visitor {
         }
 
         LinkedList args = new LinkedList(); // arg list
-        args.addLast(instanceFieldRef); // sv obj.
+        args.addLast(StringConstant.v(sig)); // sv obj.
         args.addLast(IntConstant.v(svno)); // sv no.
         args.addLast(IntConstant.v(Visitor.getLineNum(s))); // line no.
         args.addLast(IntConstant.v(debug_idx++)); // debug idx
@@ -292,7 +301,7 @@ public class VisitorForInstrumentation extends Visitor {
         }
 
         LinkedList args = new LinkedList(); // arg list
-        args.addLast(staticFieldRef); // sv obj.
+        args.addLast(StringConstant.v(sig)); // sv obj.
         args.addLast(IntConstant.v(svno)); // sv no.
         args.addLast(IntConstant.v(Visitor.getLineNum(s))); // line no.
         args.addLast(IntConstant.v(debug_idx++)); // debug idx
@@ -325,7 +334,7 @@ public class VisitorForInstrumentation extends Visitor {
 
     @Override
     public void visitMethodBegin(SootMethod sm, Chain units) {
-        if (isMainMethodInMainClass(sm)) {
+        if (Scene.v().getMainClass().getMethod("void main(java.lang.String[])").equals(sm)) {
             LinkedList args = new LinkedList();
             SootMethodRef myInitMr = Scene.v().getMethod("<" + observerClass + ": void myInit()>").makeRef();
             units.insertBefore(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(myInitMr, args)), getFirstNonIdentityStmt(sm, units));
@@ -336,11 +345,12 @@ public class VisitorForInstrumentation extends Visitor {
 
     @Override
     public void visitMethodEnd(SootMethod sm, Chain units) {
-        if (isMainMethodInMainClass(sm)) {
+        if (Scene.v().getMainClass().getMethod("void main(java.lang.String[])").equals(sm)) {
             LinkedList args = new LinkedList();
             SootMethodRef myExitMr = Scene.v().getMethod("<" + observerClass + ": void myExit()>").makeRef();
 
-            for (Stmt exit : getExits(sm, units)) {
+            List<Stmt> exits =  getExits(sm, units);
+            for (Stmt exit : exits) {
                 if (exit instanceof ReturnVoidStmt) {
                     units.insertBefore(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(myExitMr, args)), exit);
                 } else {
@@ -350,18 +360,6 @@ public class VisitorForInstrumentation extends Visitor {
         }
 
         nextVisitor.visitMethodEnd(sm, units);
-    }
-
-    private boolean isMainMethodInMainClass(SootMethod sm) {
-        // in main class
-        if (sm.getDeclaringClass().getName().equals(Visitor.mainClass)) {
-            // function type
-            if (sm.isPublic() && sm.isStatic() && sm.getReturnType().equals(VoidType.v())
-                    && sm.getParameterCount() == 1
-                    && sm.getParameterType(0).equals(ArrayType.v(RefType.v("java.lang.String"), 1))) {
-            }
-        }
-        return false;
     }
 
     private Stmt getFirstNonIdentityStmt(SootMethod sm, Chain units) {
@@ -375,15 +373,10 @@ public class VisitorForInstrumentation extends Visitor {
     private List<Stmt> getExits(SootMethod sm, Chain units) {
         List<Stmt> ret = new ArrayList<Stmt>();
 
-        for (Stmt s = (Stmt) units.getFirst(); s != units.getLast(); s = (Stmt) units.getSuccOf(s)) {
+        for (Stmt s = (Stmt) units.getFirst(); s != null; s = (Stmt) units.getSuccOf(s)) {
             if (s instanceof ReturnVoidStmt) {
                 ret.add(s);
             }
-        }
-
-        Stmt last = (Stmt) units.getLast();
-        if (!(last instanceof ReturnVoidStmt)) {
-            ret.add(last);
         }
 
         return ret;

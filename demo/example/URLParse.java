@@ -24,7 +24,7 @@ public class URLParse {
 		url = url.substring(0, valPos) + newVal + url.substring(ampPos);
 	}
 
-	private String getVal(String key) {
+	private synchronized String getVal(String key) {
 		int keyPos = url.indexOf(key);
 		int valPos = url.indexOf("=", keyPos) + 1;
 		int ampPos = url.indexOf("&", keyPos);
