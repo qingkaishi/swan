@@ -12,13 +12,10 @@ import javato.instrumentor.Visitor;
 import javato.instrumentor.contexts.InvokeContext;
 import javato.instrumentor.contexts.RHSContextImpl;
 import javato.instrumentor.contexts.RefContext;
-import soot.ArrayType;
-import soot.RefType;
 import soot.Scene;
 import soot.SootMethod;
 import soot.SootMethodRef;
 import soot.Value;
-import soot.VoidType;
 import soot.jimple.*;
 import soot.options.Options;
 import soot.util.Chain;
@@ -219,14 +216,14 @@ public class VisitorForInstrumentation extends Visitor {
     @Override
     public void visitStaticInvokeExpr(SootMethod sm, Chain units, Stmt s, StaticInvokeExpr invokeExpr, InvokeContext context) {
         String sig = invokeExpr.getMethod().getSubSignature();
-        if (sig.equals("void exit(int)") && isSystemSubType(invokeExpr.getMethod().getDeclaringClass())){
+        if (sig.equals("void exit(int)") && isSystemSubType(invokeExpr.getMethod().getDeclaringClass())) {
             LinkedList args = new LinkedList();
             SootMethodRef myExitMr = Scene.v().getMethod("<" + observerClass + ": void myExit()>").makeRef();
-            
+
             units.insertBefore(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(myExitMr, args)), s);
             return;
         }
-        
+
         if (invokeExpr.getMethod().isSynchronized()) {
             // only handle synchronization
             LinkedList args = new LinkedList(); // arg list
@@ -336,7 +333,8 @@ public class VisitorForInstrumentation extends Visitor {
     public void visitMethodBegin(SootMethod sm, Chain units) {
         if (Scene.v().getMainClass().getMethod("void main(java.lang.String[])").equals(sm)) {
             LinkedList args = new LinkedList();
-            SootMethodRef myInitMr = Scene.v().getMethod("<" + observerClass + ": void myInit()>").makeRef();
+            args.addLast(IntConstant.v(st.getSize() + 2));
+            SootMethodRef myInitMr = Scene.v().getMethod("<" + observerClass + ": void myInit(int)>").makeRef();
             units.insertBefore(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(myInitMr, args)), getFirstNonIdentityStmt(sm, units));
         }
 
@@ -349,7 +347,7 @@ public class VisitorForInstrumentation extends Visitor {
             LinkedList args = new LinkedList();
             SootMethodRef myExitMr = Scene.v().getMethod("<" + observerClass + ": void myExit()>").makeRef();
 
-            List<Stmt> exits =  getExits(sm, units);
+            List<Stmt> exits = getExits(sm, units);
             for (Stmt exit : exits) {
                 if (exit instanceof ReturnVoidStmt) {
                     units.insertBefore(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(myExitMr, args)), exit);
