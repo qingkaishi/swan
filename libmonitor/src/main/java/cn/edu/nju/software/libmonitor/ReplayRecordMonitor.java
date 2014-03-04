@@ -12,6 +12,10 @@ package cn.edu.nju.software.libmonitor;
  */
 public class ReplayRecordMonitor  extends MonitorWorker{
 
+    public ReplayRecordMonitor(int lockNum) {
+        super(lockNum);
+    }
+
     @Override
     public void myBeforeLock(Object o, int svno, int lineno, int debug) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -119,6 +123,11 @@ public class ReplayRecordMonitor  extends MonitorWorker{
 
     @Override
     public void myAfterWrite(Object o, int svno, int lineno, int debug) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void myExit() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     

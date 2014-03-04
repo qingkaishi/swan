@@ -181,22 +181,6 @@ public class VisitorForInstrumentation extends Visitor {
 
         } else {
             // mine
-            if (invokeExpr.getMethod().isSynchronized()) {
-                // only handle synchronization
-                LinkedList args = new LinkedList(); // arg list
-
-                args.addLast(base); // sv obj.
-                args.addLast(IntConstant.v(st.getSize() + 1)); // sv no.
-                args.addLast(IntConstant.v(Visitor.getLineNum(s))); //line no.
-                args.addLast(IntConstant.v(debug_idx++)); // debug idx
-
-                SootMethodRef mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeSynchronizedInsInvoke(java.lang.Object,int,int,int)>").makeRef();
-                SootMethodRef mrafter = Scene.v().getMethod("<" + observerClass + ": void myAfterSynchronizedInsInvoke(java.lang.Object,int,int,int)>").makeRef();
-
-                units.insertBefore(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrbefore, args)), s);
-                units.insertAfter(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrafter, args)), s);
-            }
-
             boolean exclude = false;
             List<String> excludes = Options.v().exclude();
             for (String pkg : excludes) {
@@ -215,31 +199,14 @@ public class VisitorForInstrumentation extends Visitor {
 
     @Override
     public void visitStaticInvokeExpr(SootMethod sm, Chain units, Stmt s, StaticInvokeExpr invokeExpr, InvokeContext context) {
-        String sig = invokeExpr.getMethod().getSubSignature();
-        if (sig.equals("void exit(int)") && isSystemSubType(invokeExpr.getMethod().getDeclaringClass())) {
-            LinkedList args = new LinkedList();
-            SootMethodRef myExitMr = Scene.v().getMethod("<" + observerClass + ": void myExit()>").makeRef();
+        /*String sig = invokeExpr.getMethod().getSubSignature();
+         if (sig.equals("void exit(int)") && isSystemSubType(invokeExpr.getMethod().getDeclaringClass())) {
+         LinkedList args = new LinkedList();
+         SootMethodRef myExitMr = Scene.v().getMethod("<" + observerClass + ": void myExit()>").makeRef();
 
-            units.insertBefore(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(myExitMr, args)), s);
-            return;
-        }
-
-        if (invokeExpr.getMethod().isSynchronized()) {
-            // only handle synchronization
-            LinkedList args = new LinkedList(); // arg list
-
-            args.addLast(StringConstant.v(invokeExpr.getMethod().getDeclaringClass().getName())); // sv obj.
-            args.addLast(IntConstant.v(st.getSize() + 1)); // sv no.
-            args.addLast(IntConstant.v(Visitor.getLineNum(s))); // line no.
-            args.addLast(IntConstant.v(-1)); // debug idx !!!
-
-            SootMethodRef mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeSynchronizedStaticInvoke(java.lang.Object,int,int,int)>").makeRef();
-            SootMethodRef mrafter = Scene.v().getMethod("<" + observerClass + ": void myAfterSynchronizedStaticInvoke(java.lang.Object,int,int,int)>").makeRef();
-
-            units.insertBefore(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrbefore, args)), s);
-            units.insertAfter(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrafter, args)), s);
-        }
-
+         units.insertBefore(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(myExitMr, args)), s);
+         return;
+         }*/
         boolean exclude = false;
         List<String> excludes = Options.v().exclude();
         for (String pkg : excludes) {
@@ -336,6 +303,21 @@ public class VisitorForInstrumentation extends Visitor {
             args.addLast(IntConstant.v(st.getSize() + 2));
             SootMethodRef myInitMr = Scene.v().getMethod("<" + observerClass + ": void myInit(int)>").makeRef();
             units.insertBefore(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(myInitMr, args)), getFirstNonIdentityStmt(sm, units));
+        } else if (sm.isSynchronized()) {
+            LinkedList args = new LinkedList(); // arg list
+            args.addLast(IntConstant.v(st.getSize() + 1)); // sv no.
+            args.addLast(IntConstant.v(Visitor.getLineNum(sm))); // line no.
+            args.addLast(IntConstant.v(debug_idx++)); // debug idx !!!
+
+            SootMethodRef mrbefore = null;
+            if (sm.isStatic()) {
+                args.addFirst(StringConstant.v(sm.getDeclaringClass().getName())); // sv obj.
+                mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeSynchronizedStaticInvoke(java.lang.Object,int,int,int)>").makeRef();
+            } else {
+                args.addFirst(getThisRefLocal(sm, units));
+                mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeSynchronizedInsInvoke(java.lang.Object,int,int,int)>").makeRef();
+            }
+            units.insertBefore(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrbefore, args)), getFirstNonIdentityStmt(sm, units));
         }
 
         nextVisitor.visitMethodBegin(sm, units);
@@ -343,17 +325,23 @@ public class VisitorForInstrumentation extends Visitor {
 
     @Override
     public void visitMethodEnd(SootMethod sm, Chain units) {
-        if (Scene.v().getMainClass().getMethod("void main(java.lang.String[])").equals(sm)) {
-            LinkedList args = new LinkedList();
-            SootMethodRef myExitMr = Scene.v().getMethod("<" + observerClass + ": void myExit()>").makeRef();
+        if (sm.isSynchronized()) {
+            LinkedList args = new LinkedList(); // arg list        
+            args.addLast(IntConstant.v(st.getSize() + 1)); // sv no.
+            args.addLast(IntConstant.v(Visitor.getLineNum(sm))); // line no.
+            args.addLast(IntConstant.v(debug_idx++)); // debug idx !!!
+            SootMethodRef mrafter = null;
+            if (sm.isStatic()) {
+                args.addFirst(StringConstant.v(sm.getDeclaringClass().getName())); // sv obj.
+                mrafter = Scene.v().getMethod("<" + observerClass + ": void myAfterSynchronizedStaticInvoke(java.lang.Object,int,int,int)>").makeRef();
+            } else {
+                args.addFirst(getThisRefLocal(sm, units)); // sv obj
+                mrafter = Scene.v().getMethod("<" + observerClass + ": void myAfterSynchronizedInsInvoke(java.lang.Object,int,int,int)>").makeRef();
+            }
 
-            List<Stmt> exits = getExits(sm, units);
-            for (Stmt exit : exits) {
-                if (exit instanceof ReturnVoidStmt) {
-                    units.insertBefore(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(myExitMr, args)), exit);
-                } else {
-                    units.insertAfter(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(myExitMr, args)), exit);
-                }
+            List<Stmt> stmts = getExits(sm, units);
+            for (Stmt s : stmts) {
+                units.insertBefore(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrafter, args)), s);
             }
         }
 
@@ -372,7 +360,7 @@ public class VisitorForInstrumentation extends Visitor {
         List<Stmt> ret = new ArrayList<Stmt>();
 
         for (Stmt s = (Stmt) units.getFirst(); s != null; s = (Stmt) units.getSuccOf(s)) {
-            if (s instanceof ReturnVoidStmt) {
+            if (s instanceof ReturnVoidStmt || s instanceof ReturnStmt) {
                 ret.add(s);
             }
         }
@@ -380,4 +368,18 @@ public class VisitorForInstrumentation extends Visitor {
         return ret;
     }
 
+    private Value getThisRefLocal(SootMethod sm, Chain units) {
+        if (!sm.isStatic()) {
+            for (Stmt s = (Stmt) units.getFirst(); s != null; s = (Stmt) units.getSuccOf(s)) {
+                if (s instanceof IdentityStmt) {
+                    Value v = ((IdentityStmt) s).getRightOp();
+                    if (v instanceof ThisRef) {
+                        return ((IdentityStmt) s).getLeftOp();
+                    }
+                }
+            }
+        }
+
+        throw new RuntimeException("Cannot find the local for ThisRef in " + sm.getName());
+    }
 }

@@ -24,9 +24,6 @@ import org.apache.commons.cli.PosixParser;
 public class Monitor {
     
     private static MonitorWorker realWorker;
-    private static List<Lock> locks;
-    private static List<Condition> conditions;
-    private static List<Thread> threads = new ArrayList<Thread>();
 
     public static void myBeforeLock(Object o, int svno, int lineno, int debug) {
         realWorker.myBeforeLock(o, svno, lineno, debug);
@@ -129,26 +126,23 @@ public class Monitor {
 
             if (cl.hasOption("r") && cl.hasOption("c")) {
                 // record
-                realWorker = new RecordMonitor();
+                realWorker = new RecordMonitor(lockNum);
             } else if (cl.hasOption("R") && cl.hasOption("T") && cl.hasOption("c")) {
                 // replay
-                realWorker = new ReplayMonitor();
+                realWorker = new ReplayMonitor(lockNum);
             } else if (cl.hasOption("e") && cl.hasOption("T") && cl.hasOption("p") && cl.hasOption("c")) {
                 // replay-record
-                realWorker = new ReplayRecordMonitor();
+                realWorker = new ReplayRecordMonitor(lockNum);
             } else if (cl.hasOption("x") && cl.hasOption("T") && cl.hasOption("p") && cl.hasOption("c")) {
                 // replay-examine
-                realWorker = new ReplayExamineMonitor();
+                realWorker = new ReplayExamineMonitor(lockNum);
             }
             
-            // initialization
-            locks = new ArrayList<Lock>(lockNum);
-            conditions = new ArrayList<Condition>(lockNum);
-            for(int i = 0; i< lockNum; i++){
-                Lock l = new ReentrantLock();
-                locks.add(l);
-                conditions.add(l.newCondition());
-            }
+            Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+                public void run() {
+                    myExit();
+                }
+            }));
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
@@ -156,6 +150,7 @@ public class Monitor {
     }
 
     public static void myExit() {
+        realWorker.myExit();
     }
 
     public static void myCleanup() {
@@ -181,4 +176,5 @@ public class Monitor {
 
         return opt;
     }
+   
 }
