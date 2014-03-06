@@ -1,8 +1,7 @@
 package cn.edu.nju.software;
 
+import cn.edu.nju.software.libmonitor.Monitor;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.ObjectOutputStream;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -67,16 +66,15 @@ public class Swan {
                 String[] mainArgs = cl.getOptionValues("g");
                 main.invoke(null, (Object) mainArgs);
             } else {
-                FileOutputStream fos = new FileOutputStream("/tmp/.swan.args");
-                ObjectOutputStream oos = new ObjectOutputStream(fos);
-                oos.writeObject(args);
-                oos.close();
-
                 // check args
                 if (cl.hasOption("r") && cl.hasOption("c")) {
+                    Monitor.setMonitorWorkerType("r");
                 } else if (cl.hasOption("R") && cl.hasOption("T") && cl.hasOption("c")) {
+                    Monitor.setMonitorWorkerType("R");
                 } else if (cl.hasOption("e") && cl.hasOption("T") && cl.hasOption("p") && cl.hasOption("c")) {
+                    Monitor.setMonitorWorkerType("e");
                 } else if (cl.hasOption("x") && cl.hasOption("T") && cl.hasOption("p") && cl.hasOption("c")) {
+                    Monitor.setMonitorWorkerType("x");
                 } else {
                     HelpFormatter formatter = new HelpFormatter();
                     formatter.printHelp(formatstr, opt);

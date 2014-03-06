@@ -5,21 +5,20 @@
  */
 package cn.edu.nju.software.libmonitor;
 
-import java.io.FileInputStream;
-import java.io.ObjectInputStream;
 import java.util.Date;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.PosixParser;
 
 /**
  *
  * @author qingkaishi
  */
 public class Monitor {
-    
+
     private static MonitorWorker realWorker;
+    private static String MonitorWorkerType = null;
+
+    public static void setMonitorWorkerType(String type) {
+        MonitorWorkerType = type;
+    }
 
     public static void myBeforeLock(Object o, int svno, int lineno, int debug) {
         realWorker.myBeforeLock(o, svno, lineno, debug);
@@ -110,38 +109,24 @@ public class Monitor {
     }
 
     public static void myInit(int lockNum) {
-        System.out.println("*******************************");
-        System.out.println("* Executing with Swan...");
-        System.out.println("* " + new Date(System.currentTimeMillis()));
-        System.out.println("*******************************");
-        System.out.println("");
-        
         try {
             // handle cmd line
-            FileInputStream fis = new FileInputStream("/tmp/.swan.args");
-            ObjectInputStream ois = new ObjectInputStream(fis);
-            String[] args = (String[]) ois.readObject();
-            ois.close();
-
-            CommandLineParser parser = new PosixParser();
-            CommandLine cl = parser.parse(prepareOptions(), args);
-
-            if (cl.hasOption("r") && cl.hasOption("c")) {
+            if ("r".equals(MonitorWorkerType)) {
                 // record
                 realWorker = new RecordMonitor(lockNum);
-            } else if (cl.hasOption("R") && cl.hasOption("T") && cl.hasOption("c")) {
+            } else if ("R".equals(MonitorWorkerType)) {
                 // replay
                 realWorker = new ReplayMonitor(lockNum);
-            } else if (cl.hasOption("e") && cl.hasOption("T") && cl.hasOption("p") && cl.hasOption("c")) {
+            } else if ("e".equals(MonitorWorkerType)) {
                 // replay-record
                 realWorker = new ReplayRecordMonitor(lockNum);
-            } else if (cl.hasOption("x") && cl.hasOption("T") && cl.hasOption("p") && cl.hasOption("c")) {
+            } else if ("x".equals(MonitorWorkerType)) {
                 // replay-examine
                 realWorker = new ReplayExamineMonitor(lockNum);
             } else {
                 realWorker = new EmptyMonitor(lockNum);
             }
-            
+
             Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
                 public void run() {
                     myExit();
@@ -151,6 +136,12 @@ public class Monitor {
             e.printStackTrace();
             System.exit(1);
         }
+
+        System.out.println("*******************************");
+        System.out.println("* Executing with Swan (" + MonitorWorkerType + ")...");
+        System.out.println("* " + new Date(System.currentTimeMillis()));
+        System.out.println("*******************************");
+        System.out.println("");
     }
 
     public static void myExit() {
@@ -160,25 +151,4 @@ public class Monitor {
     public static void myCleanup() {
     }
 
-    private static Options prepareOptions() {
-        Options opt = new Options();
-
-        opt.addOption("t", "transform", true, "transform the program to an instrumented version.");
-
-        opt.addOption("r", "record", false, "record an exacution.");
-        opt.addOption("R", "replay", true, "reproduce an exacution.");
-        opt.addOption("e", "replay-record", true, "replay and record an exacution as a trace.");
-        opt.addOption("x", "replay-examine", true, "replay a trace to examine fixes.");
-        opt.addOption("g", "generate", true, "generate traces that may expose bugs.");
-
-        opt.addOption("p", "patch", true, "the line number you synchronize your codes, e.g. ClassName:20,ClassName:21.");
-        opt.addOption("T", "trace", true, "the input trace.");
-
-        opt.addOption("c", "test-case", true, "your test cases, e.g. \"java -cp libmonitor.jar:other-dependencies -jar xxx.jar args\".");
-        opt.addOption("P", "soot-class-path", true, "the soot class path.");
-        opt.addOption("h", "help", false, "print this information.");
-
-        return opt;
-    }
-   
 }

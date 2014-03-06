@@ -15,12 +15,12 @@ elif [ "$javaversion" != 6 ];then
 fi
 rm .conftest
 
-if [ -d /tmp ];then
-    touch /tmp/.swan.args 2>/dev/null
-else
-    echo "Directory /tmp does not exist! Is it a linux OS?"
-    exit 1
-fi
+#if [ -d /tmp ];then
+#    touch /tmp/.swan.args 2>/dev/null
+#else
+#    echo "Directory /tmp does not exist! Is it a linux OS?"
+#    exit 1
+#fi
 
 # clean and compile
 cur=`pwd`
