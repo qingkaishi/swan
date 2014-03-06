@@ -3,7 +3,6 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package cn.edu.nju.software.libmonitor;
 
 import cn.edu.nju.software.libmonitor.event.SwanEvent;
@@ -15,8 +14,8 @@ import java.util.concurrent.locks.Condition;
  *
  * @author qingkaishi
  */
-public class ReplayMonitor  extends MonitorWorker{
-    
+public class ReplayMonitor extends MonitorWorker {
+
     private boolean start = false;
 
     public ReplayMonitor(int lockNum) {
@@ -50,7 +49,7 @@ public class ReplayMonitor  extends MonitorWorker{
         }
         int tid = threads.indexOf(Thread.currentThread());
         Integer lockId = this.getLockObjectId(o);
-        
+
         SwanEvent se = new SwanEvent(tid,
                 lockId, null, SwanEvent.AccessType.RELEASE, lineno);
         matchUsingObject(o, se);
@@ -161,7 +160,7 @@ public class ReplayMonitor  extends MonitorWorker{
         int joinTid = threads.indexOf(o);
         SwanEvent se = new SwanEvent(tid,
                 joinTid, null, SwanEvent.AccessType.JOIN, lineno);
-        
+
         matchUsingSleep(se);
     }
 
@@ -241,7 +240,7 @@ public class ReplayMonitor  extends MonitorWorker{
 
                 SwanEvent se = new SwanEvent(tid,
                         lockId, null, SwanEvent.AccessType.RELEASE, lineno);
-                
+
                 matchUsingObject(c, se);
             } catch (ClassNotFoundException ex) {
                 ex.printStackTrace();
@@ -257,7 +256,7 @@ public class ReplayMonitor  extends MonitorWorker{
         if (!start) {
             return;
         }
-        
+
         locks.get(svno).lock();
 
         while (!threads.contains(Thread.currentThread())) {
@@ -265,7 +264,7 @@ public class ReplayMonitor  extends MonitorWorker{
         int tid = threads.indexOf(Thread.currentThread());
         SwanEvent se = new SwanEvent(tid,
                 svno, null, SwanEvent.AccessType.READ, lineno);
-        
+
         matchUsingCondition(conditions.get(svno), se);
     }
 
@@ -290,7 +289,7 @@ public class ReplayMonitor  extends MonitorWorker{
         int tid = threads.indexOf(Thread.currentThread());
         SwanEvent se = new SwanEvent(tid,
                 svno, null, SwanEvent.AccessType.WRITE, lineno);
-        
+
         matchUsingCondition(conditions.get(svno), se);
     }
 
@@ -305,7 +304,7 @@ public class ReplayMonitor  extends MonitorWorker{
     @Override
     public void myInit(int lockNum) {
     }
-    
+
     @Override
     public void myExit() {
     }
@@ -313,40 +312,50 @@ public class ReplayMonitor  extends MonitorWorker{
     public void setTrace(Vector<SwanEvent> trace) {
         this.trace.addAll(trace);
     }
-    
+
     private void matchUsingCondition(Condition c, SwanEvent se) {
-        while(!trace.isEmpty() && se.equivTo(trace.peek())){
+        while (!trace.isEmpty() && !match(se, trace.peek())) {
             try {
                 c.awaitNanos(100000000); //100ms
             } catch (InterruptedException ex) {
                 ex.printStackTrace();
             }
-        } 
-        
+        }
+
         trace.poll();
     }
-    
+
     private void matchUsingObject(Object c, SwanEvent se) {
-        while(!trace.isEmpty() && se.equivTo(trace.peek())){
+        while (!trace.isEmpty() && !match(se, trace.peek())) {
             try {
                 c.wait(100); //100ms
             } catch (InterruptedException ex) {
                 ex.printStackTrace();
             }
-        } 
-        
+        }
+
         trace.poll();
     }
-    
+
     private void matchUsingSleep(SwanEvent se) {
-        while(!trace.isEmpty() && se.equivTo(trace.peek())){
+        while (!trace.isEmpty() && !match(se, trace.peek())) {
             try {
                 Thread.sleep(100); //100ms
             } catch (InterruptedException ex) {
                 ex.printStackTrace();
             }
-        } 
-        
+        }
+
         trace.poll();
+    }
+
+    private boolean match(SwanEvent se1, SwanEvent se2) {
+        if (se1.equals(se2)) {
+            return true;
+        }
+        
+        return (se1.sharedMemId == se2.sharedMemId || (se1.sharedMemId < 0 && se2.sharedMemId < 0))
+                && se1.accessType == se2.accessType
+                && se1.threadId == se2.threadId;
     }
 }

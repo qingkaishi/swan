@@ -94,7 +94,7 @@ public abstract class MonitorWorker {
      
     public int getLockObjectId(Object o) {
         if(!lockObjectMap.containsKey(o)){
-            lockObjectMap.put(o, lockObjectMap.size());
+            lockObjectMap.put(o, -1 - lockObjectMap.size());
         }
         
         return lockObjectMap.get(o);

@@ -22,7 +22,7 @@ public class Swan {
         opt.addOption("t", "transform", true, "transform the program to an instrumented version.");
 
         opt.addOption("r", "record", false, "record an exacution.");
-        opt.addOption("R", "replay", true, "reproduce an exacution.");
+        opt.addOption("R", "replay", false, "reproduce an exacution.");
         opt.addOption("e", "replay-record", true, "replay and record an exacution as a trace.");
         opt.addOption("x", "replay-examine", true, "replay a trace to examine fixes.");
         opt.addOption("g", "generate", true, "generate traces that may expose bugs.");
