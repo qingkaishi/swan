@@ -12,46 +12,44 @@ import java.util.LinkedList;
 import soot.jimple.toolkits.thread.ThreadLocalObjectsAnalysis;
 
 /**
- * Copyright (c) 2007-2008,
- * Koushik Sen    <ksen@cs.berkeley.edu>
- * Pallavi Joshi  <pallavi@cs.berkeley.edu>
+ * Copyright (c) 2007-2008, Koushik Sen <ksen@cs.berkeley.edu>
+ * Pallavi Joshi <pallavi@cs.berkeley.edu>
  * All rights reserved.
  * <p/>
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
+ * modification, are permitted provided that the following conditions are met:
  * <p/>
- * 1. Redistributions of source code must retain the above copyright
- * notice, this list of conditions and the following disclaimer.
+ * 1. Redistributions of source code must retain the above copyright notice,
+ * this list of conditions and the following disclaimer.
  * <p/>
- * 2. Redistributions in binary form must reproduce the above copyright
- * notice, this list of conditions and the following disclaimer in the
- * documentation and/or other materials provided with the distribution.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ * this list of conditions and the following disclaimer in the documentation
+ * and/or other materials provided with the distribution.
  * <p/>
  * 3. The names of the contributors may not be used to endorse or promote
  * products derived from this software without specific prior written
  * permission.
  * <p/>
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
- * IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
- * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
- * PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER
- * OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
- * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  */
 
 public class Visitor {
     public Visitor nextVisitor;
     public String observerClass;
     public ThreadLocalObjectsAnalysis tla;
-    
+
     public static SymbolTables st = new SymbolTables();
-    
+
     static private int counter = 0;
     static public Stmt thisStmt;
     static private ArrayList<String> iidToLineMap = new ArrayList<String>(10000);
@@ -75,12 +73,13 @@ public class Visitor {
     }
 
     private static String getFileName(SootClass c) {
-        if (!c.hasTag("SourceFileTag"))
+        if (!c.hasTag("SourceFileTag")) {
             return "unknown.java";
+        }
         String s = ((SourceFileTag) c.getTag("SourceFileTag")).getSourceFile();
         String pckgName = c.getPackageName();
-        return pckgName.equals("") ? s :
-                pckgName.replace('.', '/') + "/" + s;
+        return pckgName.equals("") ? s
+                : pckgName.replace('.', '/') + "/" + s;
     }
 
     public static int getAndIncCounter() {
@@ -115,7 +114,6 @@ public class Visitor {
         }
     }
 
-
     public Visitor(Visitor nextVisitor) {
         this.nextVisitor = nextVisitor;
     }
@@ -142,6 +140,7 @@ public class Visitor {
      * ThrowStmt ::= 'throw' LocalOrConstant@ThrowContext
      */
 
+
     public void visitStmtThrow(SootMethod sm, Chain units, ThrowStmt throwStmt) {
         nextVisitor.visitStmtThrow(sm, units, throwStmt);
     }
@@ -152,11 +151,13 @@ public class Visitor {
      * ReturnStmt ::= 'return' LocalOrConstant@ReturnContext
      */
 
+
     public void visitStmtReturn(SootMethod sm, Chain units, ReturnStmt returnStmt) {
         nextVisitor.visitStmtReturn(sm, units, returnStmt);
     }/*
      * MonitorStmt ::=  EnterMonitorStmt | ExitMonitorStmt
      */
+
 
     public void visitStmtMonitor(SootMethod sm, Chain units, MonitorStmt monitorStmt) {
         nextVisitor.visitStmtMonitor(sm, units, monitorStmt);
@@ -164,11 +165,13 @@ public class Visitor {
      * ExitMonitorStmt ::= 'monitorexit' LocalOrConstant@ExitMonitorContext
      */
 
+
     public void visitStmtExitMonitor(SootMethod sm, Chain units, ExitMonitorStmt exitMonitorStmt) {
         nextVisitor.visitStmtExitMonitor(sm, units, exitMonitorStmt);
     }/*
      * EnterMonitorStmt ::= 'monitorenter' LocalOrConstant@EnterMonitorContext
      */
+
 
     public void visitStmtEnterMonitor(SootMethod sm, Chain units, EnterMonitorStmt enterMonitorStmt) {
         nextVisitor.visitStmtEnterMonitor(sm, units, enterMonitorStmt);
@@ -176,6 +179,7 @@ public class Visitor {
      * LookupSwitchStmt ::= LocalOrConstant@LookupSwitchContext
      * (LookupValue@LookupSwitchContext Label@LookupSwitchContext)* Label@LookupSwitchDefaultContext
      */
+
 
     public void visitStmtLookupSwitch(SootMethod sm, Chain units, LookupSwitchStmt lookupSwitchStmt) {
         nextVisitor.visitStmtLookupSwitch(sm, units, lookupSwitchStmt);
@@ -188,11 +192,13 @@ public class Visitor {
      * (LookupValue@TableSwitchContext Label@TableSwitchContext)* Label@TableSwitchDefaultContext
      */
 
+
     public void visitStmtTableSwitch(SootMethod sm, Chain units, TableSwitchStmt tableSwitchStmt) {
         nextVisitor.visitStmtTableSwitch(sm, units, tableSwitchStmt);
     }/*
      * InvokeStmt ::= InvokeExpr@InvokeOnlyContext
      */
+
 
     public void visitStmtInvoke(SootMethod sm, Chain units, InvokeStmt invokeStmt) {
         nextVisitor.visitStmtInvoke(sm, units, invokeStmt);
@@ -204,12 +210,14 @@ public class Visitor {
      * GotoStmt ::= Label@GotoContext
      */
 
+
     public void visitStmtGoto(SootMethod sm, Chain units, GotoStmt gotoStmt) {
         nextVisitor.visitStmtGoto(sm, units, gotoStmt);
     }/*
      * IdentityStmt ::= Local@IdentityContext ThisRef@IdentityContext
      * | Local@IdentityContext ParameterRef@IdentityContext | Local@IdentityCntext CaughtExceptionRef@IdentityContext
      */
+
 
     public void visitStmtIdentity(SootMethod sm, Chain units, IdentityStmt identityStmt) {
         nextVisitor.visitStmtIdentity(sm, units, identityStmt);
@@ -218,11 +226,13 @@ public class Visitor {
      * | Local@LHSContext RHS@LHSContext
      */
 
+
     public void visitStmtAssign(SootMethod sm, Chain units, AssignStmt assignStmt) {
         nextVisitor.visitStmtAssign(sm, units, assignStmt);
     }/*
      * RHS{LHSContext} ::= ConcreteRef@RHSContext | LocalOrConstant@RHSContext | Expr@RSHContext
      */
+
 
     public void visitRHS(SootMethod sm, Chain units, Stmt s, Value right) {
         nextVisitor.visitRHS(sm, units, s, right);
@@ -232,11 +242,13 @@ public class Visitor {
      * | LengthExpr@RHSContext | NegExpr@RHSContext
      */
 
+
     public void visitExpr(SootMethod sm, Chain units, Stmt s, Expr expr) {
         nextVisitor.visitExpr(sm, units, s, expr);
     }/*
      * NegExpr{RHSContext} ::= LocalOrConstant@NegContext
      */
+
 
     public void visitNegExpr(SootMethod sm, Chain units, Stmt s, NegExpr negExpr) {
         nextVisitor.visitNegExpr(sm, units, s, negExpr);
@@ -244,11 +256,13 @@ public class Visitor {
      * LengthExpr{RHSContext} ::= LocalOrConstant@LengthContext
      */
 
+
     public void visitLengthExpr(SootMethod sm, Chain units, Stmt s, LengthExpr lengthExpr) {
         nextVisitor.visitLengthExpr(sm, units, s, lengthExpr);
     }/*
      * NewMultiArrayExpr{RHSContext} ::= Type@NewMultiArrayContext (LocalOrConstant@NewMultiArrayContext)*
      */
+
 
     public void visitNewMultiArrayExpr(SootMethod sm, Chain units, Stmt s, NewMultiArrayExpr newMultiArrayExpr) {
         nextVisitor.visitNewMultiArrayExpr(sm, units, s, newMultiArrayExpr);
@@ -256,11 +270,13 @@ public class Visitor {
      * NewArrayExpr{RHSContext} ::= Type@NewArrayContext (LocalOrConstant@NewArrayContext)*
      */
 
+
     public void visitNewArrayExpr(SootMethod sm, Chain units, Stmt s, NewArrayExpr newArrayExpr) {
         nextVisitor.visitNewArrayExpr(sm, units, s, newArrayExpr);
     }/*
      * NewExpr{RHSContext} ::= Type@NewArrayContext
      */
+
 
     public void visitNewExpr(SootMethod sm, Chain units, Stmt s, NewExpr newExpr) {
         nextVisitor.visitNewExpr(sm, units, s, newExpr);
@@ -271,16 +287,17 @@ public class Visitor {
      *                                                              (LocalOrConstant@InvokeOnlyArgumentContext)*
      */
 
+
     public void visitInvokeExpr(SootMethod sm, Chain units, Stmt s, InvokeExpr invokeExpr, InvokeContext context) {
         nextVisitor.visitInvokeExpr(sm, units, s, invokeExpr, context);
     }/*
      * InstanceOfExpr{RHSContext} ::= LocalOrConstant@InstanceOfContext Type@InstanceOfContext
      */
 
+
     public void visitStaticInvokeExpr(SootMethod sm, Chain units, Stmt s, StaticInvokeExpr invokeExpr, InvokeContext context) {
         nextVisitor.visitStaticInvokeExpr(sm, units, s, invokeExpr, context);
     }
-
 
     public void visitInstanceInvokeExpr(SootMethod sm, Chain units, Stmt s, InstanceInvokeExpr invokeExpr, InvokeContext context) {
         nextVisitor.visitInstanceInvokeExpr(sm, units, s, invokeExpr, context);
@@ -292,11 +309,13 @@ public class Visitor {
      * CastExpr{RHSContext} ::= Type@CastContext LocalOrConstant@CastContext
      */
 
+
     public void visitCastExpr(SootMethod sm, Chain units, Stmt s, CastExpr castExpr) {
         nextVisitor.visitCastExpr(sm, units, s, castExpr);
     }/*
      * Type{CastContext,InstanceOfContext,NewArrayContext,NewExpr,NewMultiArrayContext}
      */
+
 
     public void visitType(SootMethod sm, Chain units, Stmt s, Type castType, TypeContext context) {
         nextVisitor.visitType(sm, units, s, castType, context);
@@ -305,12 +324,14 @@ public class Visitor {
      * | LocalOrConstant@IfFirstContext Binop@IfContext  LocalOrConstant@IfSecondContext
      */
 
+
     public void visitBinopExpr(SootMethod sm, Chain units, Stmt s, BinopExpr expr, BinopExprContext context) {
         nextVisitor.visitBinopExpr(sm, units, s, expr, context);
     }/*
      * ConcreteRef{RHSContext,LHSContext} ::= InstanceFieldRef{RHSContext} | ArrayRef{RHSContext} | StaticFieldRef{RHSContext}
      * | InstanceFieldRef{LHSContext} | ArrayRef{LHSContext} | StaticFieldRef{LHSContext}
      */
+
 
     public void visitConcreteRef(SootMethod sm, Chain units, Stmt s, ConcreteRef concreteRef, RefContext context) {
         nextVisitor.visitConcreteRef(sm, units, s, concreteRef, context);
@@ -322,6 +343,7 @@ public class Visitor {
      * ReturnContext,ThrowContext}  ::= Local | Constant
      */
 
+
     public void visitLocalOrConstant(SootMethod sm, Chain units, Stmt s, Value right, LocalOrConstantContext context) {
         nextVisitor.visitLocalOrConstant(sm, units, s, right, context);
     }/*
@@ -331,6 +353,7 @@ public class Visitor {
      * RHSContext,EnterMonitorContext,ExitMonitorContext,LookupSwitchContext,TableSwitchContext,
      * ReturnContext,ThrowContext}
      */
+
 
     public void visitConstant(SootMethod sm, Chain units, Stmt s, Constant constant, LocalOrConstantContext context) {
         nextVisitor.visitConstant(sm, units, s, constant, context);
@@ -342,11 +365,13 @@ public class Visitor {
      * ReturnContext,ThrowContext,IdentityContext,LHSContext}
      */
 
+
     public void visitLocal(SootMethod sm, Chain units, Stmt s, Local local, LocalContext context) {
         nextVisitor.visitLocal(sm, units, s, local, context);
     }/*
      * StaticFieldRef{RHSContext,LHSContext}
      */
+
 
     public void visitStaticFieldRef(SootMethod sm, Chain units, Stmt s, StaticFieldRef staticFieldRef, RefContext context) {
         nextVisitor.visitStaticFieldRef(sm, units, s, staticFieldRef, context);
@@ -354,11 +379,13 @@ public class Visitor {
      * ArrayRef{RHSContext,LHSContext}
      */
 
+
     public void visitArrayRef(SootMethod sm, Chain units, Stmt s, ArrayRef arrayRef, RefContext context) {
         nextVisitor.visitArrayRef(sm, units, s, arrayRef, context);
     }/*
      * InstanceFieldRef{RHSContext,LHSContext}
      */
+
 
     public void visitInstanceFieldRef(SootMethod sm, Chain units, Stmt s, InstanceFieldRef instanceFieldRef, RefContext context) {
         nextVisitor.visitInstanceFieldRef(sm, units, s, instanceFieldRef, context);
@@ -366,11 +393,13 @@ public class Visitor {
      * CaughtExceptionRef{IdentityContext}
      */
 
+
     public void visitCaughtExceptionRef(SootMethod sm, Chain units, IdentityStmt s, CaughtExceptionRef caughtExceptionRef) {
         nextVisitor.visitCaughtExceptionRef(sm, units, s, caughtExceptionRef);
     }/*
      * ParameterRef{IdentityContext}
      */
+
 
     public void visitParameterRef(SootMethod sm, Chain units, IdentityStmt s, ParameterRef parameterRef) {
         nextVisitor.visitParameterRef(sm, units, s, parameterRef);
@@ -378,11 +407,13 @@ public class Visitor {
      * ThisRef{IdentityContext}
      */
 
+
     public void visitThisRef(SootMethod sm, Chain units, IdentityStmt s, ThisRef thisRef) {
         nextVisitor.visitThisRef(sm, units, s, thisRef);
     }/*
      * Binop{RHSContext,IfContext}
      */
+
 
     public void visitBinop(SootMethod sm, Chain units, Stmt s, String op, BinopExprContext context) {
         nextVisitor.visitBinop(sm, units, s, op, context);
@@ -390,11 +421,13 @@ public class Visitor {
      * Signature{InvokeAndAssignContext,InvokeOnlyContext}
      */
 
+
     public void visitSignature(SootMethod sm, Chain units, Stmt s, String signature, InvokeContext context) {
         nextVisitor.visitSignature(sm, units, s, signature, context);
     }/*
      * Label{GotoContext,IfContext,LookupSwitchContext,LookupSwitchDefaultContext,TableSwitchContext,TableSwitchDefaultContext}
      */
+
 
     public void visitLabel(SootMethod sm, Chain units, Stmt gotoStmt, Unit target, LabelContext context) {
         nextVisitor.visitLabel(sm, units, gotoStmt, target, context);
@@ -413,7 +446,6 @@ public class Visitor {
         mr = Scene.v().getMethod("<" + observerClass + ": void " + methodName + "(int,java.lang.Object)>").makeRef();
         units.insertBefore(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mr, IntConstant.v(getAndIncCounter()), v)), units.getLast());
     }
-
 
     protected void addCall(Chain units, Stmt s, String methodName, boolean before) {
         SootMethodRef mr;
@@ -508,7 +540,7 @@ public class Visitor {
     }
 
     protected void addCallWithObjectStringStringInt(Chain units, Stmt s, String methodName,
-                                                    Value v1, Value v2, Value v3, Value v4, boolean before) {
+            Value v1, Value v2, Value v3, Value v4, boolean before) {
         SootMethodRef mr;
 
         LinkedList args = new LinkedList();
@@ -527,7 +559,7 @@ public class Visitor {
     }
 
     protected void addCallWithObjectStringString(Chain units, Stmt s, String methodName,
-                                                 Value v1, Value v2, Value v3, boolean before) {
+            Value v1, Value v2, Value v3, boolean before) {
         SootMethodRef mr;
 
         LinkedList args = new LinkedList();
@@ -543,7 +575,6 @@ public class Visitor {
             units.insertAfter(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mr, args)), s);
         }
     }
-
 
     protected void addCallWithObjectIntString(Chain units, Stmt s, String methodName, Value v1, Value v2, Value v3, boolean before) {
         SootMethodRef mr;
@@ -594,17 +625,19 @@ public class Visitor {
     }
 
     protected static boolean isThreadSubType(SootClass c) {
-        if (c.getName().equals("java.lang.Thread"))
+        if (c.getName().equals("java.lang.Thread")) {
             return true;
+        }
         if (!c.hasSuperclass()) {
             return false;
         }
         return isThreadSubType(c.getSuperclass());
     }
-    
+
     protected static boolean isSystemSubType(SootClass c) {
-        if (c.getName().equals("java.lang.System"))
+        if (c.getName().equals("java.lang.System")) {
             return true;
+        }
         if (!c.hasSuperclass()) {
             return false;
         }
@@ -612,18 +645,22 @@ public class Visitor {
     }
 
     protected static boolean isRunnableSubType(SootClass c) {
-        if (c.implementsInterface("java.lang.Runnable"))
+        if (c.implementsInterface("java.lang.Runnable")) {
             return true;
-        if (c.hasSuperclass())
+        }
+        if (c.hasSuperclass()) {
             return isRunnableSubType(c.getSuperclass());
+        }
         return false;
     }
 
     protected boolean isSubClass(SootClass c, String typeName) {
-        if (c.getName().equals(typeName))
+        if (c.getName().equals(typeName)) {
             return true;
-        if (c.implementsInterface(typeName))
+        }
+        if (c.implementsInterface(typeName)) {
             return true;
+        }
         if (!c.hasSuperclass()) {
             return false;
         }

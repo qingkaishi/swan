@@ -1,0 +1,13 @@
+--- ../orig_version/example/URLParse.java	2014-03-04 20:21:25.482536320 +0800
++++ example/URLParse.java	2014-03-06 17:41:39.484535134 +0800
+@@ -15,7 +15,9 @@ public class URLParse {
+ 			replaceVal(key, "B");
+ 	}
+ 
+-	private void replaceVal(String key, String newVal) {
++
++	// private void replaceVal(String key, String newVal) {
++	private void synchronized replaceVal(String key, String newVal) {
+ 		int keyPos = url.indexOf(key);
+ 		int valPos = url.indexOf("=", keyPos) + 1;
+ 		int ampPos = url.indexOf("&", keyPos);

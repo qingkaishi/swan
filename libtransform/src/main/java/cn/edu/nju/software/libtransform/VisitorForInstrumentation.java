@@ -5,6 +5,7 @@
  */
 package cn.edu.nju.software.libtransform;
 
+import cn.edu.nju.software.libtransform.patch.Patch;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -12,6 +13,7 @@ import javato.instrumentor.Visitor;
 import javato.instrumentor.contexts.InvokeContext;
 import javato.instrumentor.contexts.RHSContextImpl;
 import javato.instrumentor.contexts.RefContext;
+import soot.Modifier;
 import soot.Scene;
 import soot.SootMethod;
 import soot.SootMethodRef;
@@ -66,10 +68,12 @@ public class VisitorForInstrumentation extends Visitor {
 
     @Override
     public void visitStmtEnterMonitor(SootMethod sm, Chain units, EnterMonitorStmt enterMonitorStmt) {
+        int linenumber = Visitor.getLineNum(enterMonitorStmt);
+
         LinkedList args = new LinkedList(); // arg list
         args.addLast(enterMonitorStmt.getOp()); // sv obj.
         args.addLast(IntConstant.v(st.getSize())); // sv no.
-        args.addLast(IntConstant.v(Visitor.getLineNum(enterMonitorStmt)));
+        args.addLast(IntConstant.v(linenumber));
         args.addLast(IntConstant.v(debug_idx++)); // debug idx
 
         SootMethodRef mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeLock(java.lang.Object,int,int,int)>").makeRef();
@@ -78,15 +82,20 @@ public class VisitorForInstrumentation extends Visitor {
         units.insertBefore(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrbefore, args)), enterMonitorStmt);
         units.insertAfter(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrafter, args)), enterMonitorStmt);
 
-        nextVisitor.visitStmtEnterMonitor(sm, units, enterMonitorStmt);
+        if (Patch.v().contains(linenumber)) {
+            System.out.println("[Swan] Detecting patched MonitorEnter INST at Line " + linenumber + ".");
+            units.remove(enterMonitorStmt);
+        }
     }
 
     @Override
     public void visitStmtExitMonitor(SootMethod sm, Chain units, ExitMonitorStmt exitMonitorStmt) {
+        int linenumber = Visitor.getLineNum(exitMonitorStmt);
+
         LinkedList args = new LinkedList(); // arg list
         args.addLast(exitMonitorStmt.getOp()); // sv obj.
         args.addLast(IntConstant.v(st.getSize())); // sv no.
-        args.addLast(IntConstant.v(Visitor.getLineNum(exitMonitorStmt)));
+        args.addLast(IntConstant.v(linenumber));
         args.addLast(IntConstant.v(debug_idx++)); // debug idx
 
         SootMethodRef mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeUnlock(java.lang.Object,int,int,int)>").makeRef();
@@ -95,7 +104,10 @@ public class VisitorForInstrumentation extends Visitor {
         units.insertBefore(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrbefore, args)), exitMonitorStmt);
         units.insertAfter(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrafter, args)), exitMonitorStmt);
 
-        nextVisitor.visitStmtExitMonitor(sm, units, exitMonitorStmt);
+        if (Patch.v().contains(linenumber)) {
+            System.out.println("[Swan] Detecting patched MonitorExit INST at Line " + linenumber + ".");
+            units.remove(exitMonitorStmt);
+        }
     }
 
     @Override
@@ -326,9 +338,11 @@ public class VisitorForInstrumentation extends Visitor {
     @Override
     public void visitMethodEnd(SootMethod sm, Chain units) {
         if (sm.isSynchronized()) {
+            int linenumber = getLineNum(sm);
+
             LinkedList args = new LinkedList(); // arg list        
             args.addLast(IntConstant.v(st.getSize())); // sv no.
-            args.addLast(IntConstant.v(Visitor.getLineNum(sm))); // line no.
+            args.addLast(IntConstant.v(linenumber)); // line no.
             args.addLast(IntConstant.v(debug_idx++)); // debug idx !!!
             SootMethodRef mrafter = null;
             if (sm.isStatic()) {
@@ -342,6 +356,11 @@ public class VisitorForInstrumentation extends Visitor {
             List<Stmt> stmts = getExits(sm, units);
             for (Stmt s : stmts) {
                 units.insertBefore(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrafter, args)), s);
+            }
+
+            if (Patch.v().contains(linenumber)) {
+                System.out.println("[Swan] Detecting patched SYNC. METHOD at Line " + linenumber + ".");
+                sm.setModifiers(sm.getModifiers() & ~Modifier.SYNCHRONIZED);
             }
         }
 

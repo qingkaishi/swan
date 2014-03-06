@@ -1,0 +1,16 @@
+--- ../orig_version/stringbuffer/StringBuffer.java	2014-03-04 19:21:35.426469863 +0800
++++ stringbuffer/StringBuffer.java	2014-03-06 18:05:21.068570296 +0800
+@@ -439,11 +439,13 @@ public final class StringBuffer
+         }
+ 
+         int len = sb.length();
++	synchronized(sb){
+         int newcount = count + len;
+         if (newcount > value.length)
+             expandCapacity(newcount);
+         sb.getChars(0, len, value, count);
+         count = newcount;
++	}
+         return this;
+     }
+ 

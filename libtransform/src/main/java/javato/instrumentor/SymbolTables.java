@@ -57,6 +57,6 @@ public class SymbolTables {
     
     //HACKED by ise
     public void test() {
-        System.out.println(table);
+        System.out.println("[Swan] Detecting shared variables: " + table);
     }
 }

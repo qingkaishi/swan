@@ -1,6 +1,7 @@
 package cn.edu.nju.software;
 
 import cn.edu.nju.software.libmonitor.Monitor;
+import cn.edu.nju.software.libtransform.patch.Patch;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -27,7 +28,7 @@ public class Swan {
         opt.addOption("x", "replay-examine", true, "replay a trace to examine fixes.");
         opt.addOption("g", "generate", true, "generate traces that may expose bugs.");
 
-        opt.addOption("p", "patch", true, "the line number you synchronize your codes, e.g. ClassName:20,ClassName:21.");
+        opt.addOption("p", "patch", true, "the line number you synchronize your codes, e.g. ClassName:20,ClassName:21, or :20,:21 if there is no ambiguity.");
         opt.addOption("T", "trace", true, "the input trace.");
 
         opt.addOption("c", "test-case", true, "your test cases, e.g. \"MainClass args\". Please use \"\" to make it as a whole.");
@@ -46,6 +47,10 @@ public class Swan {
             }
 
             if (cl.hasOption("t")) {
+                if(cl.hasOption("p")){
+                    Patch.v().parse(cl.getOptionValue("p"));
+                }
+                
                 String appname = "cn.edu.nju.software.libtransform.Transformer";
                 Class<?> c = Class.forName(appname);
                 Class[] argTypes = new Class[]{String[].class};
@@ -79,9 +84,9 @@ public class Swan {
                     } else {
                         throw new RuntimeException("Trace file error: " + f.getAbsolutePath() + ".");
                     }
-                } else if (cl.hasOption("e") && cl.hasOption("T") && cl.hasOption("p") && cl.hasOption("c")) {
+                } else if (cl.hasOption("e") && cl.hasOption("T") && cl.hasOption("c")) {
                     Monitor.setMonitorWorkerType("e");
-                } else if (cl.hasOption("x") && cl.hasOption("T") && cl.hasOption("p") && cl.hasOption("c")) {
+                } else if (cl.hasOption("x") && cl.hasOption("T") && cl.hasOption("c")) {
                     Monitor.setMonitorWorkerType("x");
                 } else {
                     HelpFormatter formatter = new HelpFormatter();
