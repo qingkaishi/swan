@@ -19,7 +19,7 @@ public class SwanEvent implements Serializable{
         READ, WRITE, ACQUIRE, RELEASE, WAIT_RELEASE, WAIT_ACQUIRE, NOTIFY, NOTIFYALL, FORK, JOIN;    
     }
     
-    public int threadId, sharedMemId, lockId, lineNo;
+    public int threadId, sharedMemId, lineNo;
     public AccessType accessType;
     public Vector<Integer> lockIds = new Vector<Integer>();
     
@@ -29,5 +29,13 @@ public class SwanEvent implements Serializable{
         this.accessType = accessType;
         this.lineNo = lineNo;
         this.lockIds.addAll(curlockIds);
+    }
+    
+    public boolean equivTo(SwanEvent se) {
+        if(this.equals(se)) return true;
+        
+        return this.sharedMemId == se.sharedMemId 
+                && this.accessType == se.accessType 
+                && this.threadId == se.threadId;
     }
 }

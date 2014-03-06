@@ -5,7 +5,12 @@
  */
 package cn.edu.nju.software.libmonitor;
 
+import cn.edu.nju.software.libmonitor.event.SwanEvent;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.ObjectInputStream;
 import java.util.Date;
+import java.util.Vector;
 
 /**
  *
@@ -15,9 +20,14 @@ public class Monitor {
 
     private static MonitorWorker realWorker;
     private static String MonitorWorkerType = null;
+    private static File TraceFile = null;
 
     public static void setMonitorWorkerType(String type) {
         MonitorWorkerType = type;
+    }
+    
+    public static void setTraceFile(File file) {
+        TraceFile = file;
     }
 
     public static void myBeforeLock(Object o, int svno, int lineno, int debug) {
@@ -117,6 +127,15 @@ public class Monitor {
             } else if ("R".equals(MonitorWorkerType)) {
                 // replay
                 realWorker = new ReplayMonitor(lockNum);
+                
+                FileInputStream fis = new FileInputStream(TraceFile);
+                ObjectInputStream ois = new ObjectInputStream(fis);
+                
+                Vector<SwanEvent> trace = (Vector<SwanEvent>) ois.readObject();
+                ((ReplayMonitor)realWorker).setTrace(trace);
+                ois.close();
+                TraceFile = null;
+                trace = null;
             } else if ("e".equals(MonitorWorkerType)) {
                 // replay-record
                 realWorker = new ReplayRecordMonitor(lockNum);
@@ -142,6 +161,8 @@ public class Monitor {
         System.out.println("* " + new Date(System.currentTimeMillis()));
         System.out.println("*******************************");
         System.out.println("");
+        
+        realWorker.myInit(lockNum);
     }
 
     public static void myExit() {

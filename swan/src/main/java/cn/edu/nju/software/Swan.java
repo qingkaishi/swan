@@ -71,6 +71,14 @@ public class Swan {
                     Monitor.setMonitorWorkerType("r");
                 } else if (cl.hasOption("R") && cl.hasOption("T") && cl.hasOption("c")) {
                     Monitor.setMonitorWorkerType("R");
+
+                    String filename = cl.getOptionValue("T");
+                    File f = new File(filename);
+                    if (f.exists() && !f.isDirectory()) {
+                        Monitor.setTraceFile(f);
+                    } else {
+                        throw new RuntimeException("Trace file error: " + f.getAbsolutePath() + ".");
+                    }
                 } else if (cl.hasOption("e") && cl.hasOption("T") && cl.hasOption("p") && cl.hasOption("c")) {
                     Monitor.setMonitorWorkerType("e");
                 } else if (cl.hasOption("x") && cl.hasOption("T") && cl.hasOption("p") && cl.hasOption("c")) {
@@ -104,12 +112,12 @@ public class Swan {
                         System.err.println("The class path does not exist! " + file.getAbsolutePath());
                         System.exit(1);
                     }
-                    
+
                     urls[i] = file.toURI().toURL();
-                    
+
                     System.out.println(urls[i]);
                 }
-                
+
                 URLClassLoader ucl = new URLClassLoader(urls);
 
                 String testcase = cl.getOptionValue("c");

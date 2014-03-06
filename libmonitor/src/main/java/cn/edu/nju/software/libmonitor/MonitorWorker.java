@@ -88,8 +88,9 @@ public abstract class MonitorWorker {
 
     public abstract void myAfterWrite(Object o, int svno, int lineno, int debug);
 
-    public abstract void myExit();
+    public  abstract  void myInit(int lockNum);
     
+    public abstract void myExit();
      
     public int getLockObjectId(Object o) {
         if(!lockObjectMap.containsKey(o)){

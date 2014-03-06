@@ -113,7 +113,7 @@ public class RecordMonitor extends MonitorWorker {
         int tid = threads.indexOf(Thread.currentThread());
         List<Integer> curLockIds = lockObjects.get(tid);
 
-        SwanEvent se = new SwanEvent(tid, svno, curLockIds, SwanEvent.AccessType.NOTIFY, lineno);
+        SwanEvent se = new SwanEvent(tid, this.getLockObjectId(o), curLockIds, SwanEvent.AccessType.NOTIFY, lineno);
         trace.add(se);
     }
 
@@ -133,7 +133,7 @@ public class RecordMonitor extends MonitorWorker {
         List<Integer> curLockIds = lockObjects.get(tid);
 
         SwanEvent se = new SwanEvent(tid,
-                svno, curLockIds, SwanEvent.AccessType.NOTIFYALL, lineno);
+                this.getLockObjectId(o), curLockIds, SwanEvent.AccessType.NOTIFYALL, lineno);
         trace.add(se);
     }
 
@@ -201,7 +201,7 @@ public class RecordMonitor extends MonitorWorker {
         curLockIds.add(lockId);
 
         SwanEvent se = new SwanEvent(tid,
-                svno, curLockIds, SwanEvent.AccessType.ACQUIRE, lineno);
+                lockId, curLockIds, SwanEvent.AccessType.ACQUIRE, lineno);
         trace.add(se);
     }
 
@@ -217,7 +217,7 @@ public class RecordMonitor extends MonitorWorker {
         List<Integer> curLockIds = lockObjects.get(tid);
 
         SwanEvent se = new SwanEvent(tid,
-                svno, curLockIds, SwanEvent.AccessType.RELEASE, lineno);
+                lockId, curLockIds, SwanEvent.AccessType.RELEASE, lineno);
         trace.add(se);
         
         curLockIds.remove(lockId);
@@ -240,7 +240,7 @@ public class RecordMonitor extends MonitorWorker {
                 curLockIds.add(lockId);
 
                 SwanEvent se = new SwanEvent(tid,
-                        svno, curLockIds, SwanEvent.AccessType.ACQUIRE, lineno);
+                        lockId, curLockIds, SwanEvent.AccessType.ACQUIRE, lineno);
                 trace.add(se);
             } catch (ClassNotFoundException ex) {
                 ex.printStackTrace();
@@ -265,8 +265,8 @@ public class RecordMonitor extends MonitorWorker {
                 Integer lockId = this.getLockObjectId(c);
                 List<Integer> curLockIds = lockObjects.get(tid);
 
-                SwanEvent se = new SwanEvent(threads.indexOf(Thread.currentThread()),
-                        svno, curLockIds, SwanEvent.AccessType.RELEASE, lineno);
+                SwanEvent se = new SwanEvent(tid,
+                        lockId, curLockIds, SwanEvent.AccessType.RELEASE, lineno);
                 trace.add(se);
                 curLockIds.remove(lockId);
             } catch (ClassNotFoundException ex) {
@@ -340,6 +340,10 @@ public class RecordMonitor extends MonitorWorker {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void myInit(int lockNum) {
     }
 
 }
