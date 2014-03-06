@@ -24,8 +24,8 @@ public class Swan {
 
         opt.addOption("r", "record", false, "record an exacution.");
         opt.addOption("R", "replay", false, "reproduce an exacution.");
-        opt.addOption("e", "replay-record", true, "replay and record an exacution as a trace.");
-        opt.addOption("x", "replay-examine", true, "replay a trace to examine fixes.");
+        opt.addOption("e", "replay-record", false, "replay and record an exacution as a trace.");
+        opt.addOption("x", "replay-examine", false, "replay a trace to examine fixes.");
         opt.addOption("g", "generate", true, "generate traces that may expose bugs.");
 
         opt.addOption("p", "patch", true, "the line number you synchronize your codes, e.g. ClassName:20,ClassName:21, or :20,:21 if there is no ambiguity.");
@@ -47,10 +47,10 @@ public class Swan {
             }
 
             if (cl.hasOption("t")) {
-                if(cl.hasOption("p")){
+                if (cl.hasOption("p")) {
                     Patch.v().parse(cl.getOptionValue("p"));
                 }
-                
+
                 String appname = "cn.edu.nju.software.libtransform.Transformer";
                 Class<?> c = Class.forName(appname);
                 Class[] argTypes = new Class[]{String[].class};
@@ -74,8 +74,16 @@ public class Swan {
                 // check args
                 if (cl.hasOption("r") && cl.hasOption("c")) {
                     Monitor.setMonitorWorkerType("r");
-                } else if (cl.hasOption("R") && cl.hasOption("T") && cl.hasOption("c")) {
-                    Monitor.setMonitorWorkerType("R");
+                } else if (cl.hasOption("T")) {
+                    if (cl.hasOption("R") && cl.hasOption("c")) {
+                        Monitor.setMonitorWorkerType("R");
+                    } else if (cl.hasOption("e") && cl.hasOption("c")) {
+                        Monitor.setMonitorWorkerType("e");
+                    } else if (cl.hasOption("x") && cl.hasOption("c")) {
+                        Monitor.setMonitorWorkerType("x");
+                    } else {
+                        throw new ParseException(formatstr);
+                    }
 
                     String filename = cl.getOptionValue("T");
                     File f = new File(filename);
@@ -84,14 +92,8 @@ public class Swan {
                     } else {
                         throw new RuntimeException("Trace file error: " + f.getAbsolutePath() + ".");
                     }
-                } else if (cl.hasOption("e") && cl.hasOption("T") && cl.hasOption("c")) {
-                    Monitor.setMonitorWorkerType("e");
-                } else if (cl.hasOption("x") && cl.hasOption("T") && cl.hasOption("c")) {
-                    Monitor.setMonitorWorkerType("x");
                 } else {
-                    HelpFormatter formatter = new HelpFormatter();
-                    formatter.printHelp(formatstr, opt);
-                    return;
+                    throw new ParseException(formatstr);
                 }
 
                 // run test case

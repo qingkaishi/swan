@@ -25,7 +25,7 @@ public class Monitor {
     public static void setMonitorWorkerType(String type) {
         MonitorWorkerType = type;
     }
-    
+
     public static void setTraceFile(File file) {
         TraceFile = file;
     }
@@ -146,26 +146,29 @@ public class Monitor {
             if ("r".equals(MonitorWorkerType)) {
                 // record
                 realWorker = new RecordMonitor(lockNum);
-            } else if ("R".equals(MonitorWorkerType)) {
-                // replay
-                realWorker = new ReplayMonitor(lockNum);
-                
+            } else {
+                if ("R".equals(MonitorWorkerType)) {
+                    // replay
+                    realWorker = new ReplayMonitor(lockNum);
+                } else if ("e".equals(MonitorWorkerType)) {
+                    // replay-record
+                    realWorker = new ReplayRecordMonitor(lockNum);
+                } else if ("x".equals(MonitorWorkerType)) {
+                    // replay-examine
+                    realWorker = new ReplayExamineMonitor(lockNum);
+                } else {
+                    // empty
+                    realWorker = new EmptyMonitor(lockNum);
+                }
+
                 FileInputStream fis = new FileInputStream(TraceFile);
                 ObjectInputStream ois = new ObjectInputStream(fis);
-                
+
                 Vector<SwanEvent> trace = (Vector<SwanEvent>) ois.readObject();
-                ((ReplayMonitor)realWorker).setTrace(trace);
+                realWorker.setTrace(trace);
                 ois.close();
                 TraceFile = null;
                 trace = null;
-            } else if ("e".equals(MonitorWorkerType)) {
-                // replay-record
-                realWorker = new ReplayRecordMonitor(lockNum);
-            } else if ("x".equals(MonitorWorkerType)) {
-                // replay-examine
-                realWorker = new ReplayExamineMonitor(lockNum);
-            } else {
-                realWorker = new EmptyMonitor(lockNum);
             }
 
             Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
@@ -183,7 +186,7 @@ public class Monitor {
         System.out.println("* " + new Date(System.currentTimeMillis()));
         System.out.println("*******************************");
         System.out.println("");
-        
+
         realWorker.myInit(lockNum);
     }
 

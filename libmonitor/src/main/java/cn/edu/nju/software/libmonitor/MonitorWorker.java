@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -26,7 +27,7 @@ public abstract class MonitorWorker {
     protected List<Thread> threads = new ArrayList<Thread>();
     protected List<List<Integer>> lockObjects = new ArrayList<List<Integer>>();
     protected ConcurrentLinkedQueue<SwanEvent> trace = new ConcurrentLinkedQueue<SwanEvent>();
-    
+
     Map<Object, Integer> lockObjectMap = new HashMap<Object, Integer>();
 
     public MonitorWorker(int lockNum) {
@@ -88,15 +89,19 @@ public abstract class MonitorWorker {
 
     public abstract void myAfterWrite(Object o, int svno, int lineno, int debug);
 
-    public  abstract  void myInit(int lockNum);
-    
+    public abstract void myInit(int lockNum);
+
     public abstract void myExit();
-     
+
     public int getLockObjectId(Object o) {
-        if(!lockObjectMap.containsKey(o)){
+        if (!lockObjectMap.containsKey(o)) {
             lockObjectMap.put(o, -1 - lockObjectMap.size());
         }
-        
+
         return lockObjectMap.get(o);
+    }
+
+    public void setTrace(Vector<SwanEvent> trace) {
+        this.trace.addAll(trace);
     }
 }

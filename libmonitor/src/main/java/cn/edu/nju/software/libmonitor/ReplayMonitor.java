@@ -309,10 +309,6 @@ public class ReplayMonitor extends MonitorWorker {
     public void myExit() {
     }
 
-    public void setTrace(Vector<SwanEvent> trace) {
-        this.trace.addAll(trace);
-    }
-
     private void matchUsingCondition(Condition c, SwanEvent se) {
         while (!trace.isEmpty() && !match(se, trace.peek())) {
             try {
