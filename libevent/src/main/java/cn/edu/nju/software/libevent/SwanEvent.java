@@ -7,6 +7,7 @@ package cn.edu.nju.software.libevent;
 
 import java.io.Serializable;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
@@ -32,9 +33,38 @@ public class SwanEvent implements Serializable {
         this.sharedMemId = sharedMemId;
         this.accessType = accessType;
         this.lineNo = lineNo;
-        if(curlockIds!=null)
+        if (curlockIds != null) {
             this.lockIds.addAll(curlockIds);
+        }
+    }
+
+    public transient Set<SwanEvent> happensBefore = null;
+    public transient Set<SwanEvent> temporalNext = null;
+
+    public void addTemporalNext(SwanEvent se) {
+        if (temporalNext == null) {
+            temporalNext = new HashSet<SwanEvent>();
+        }
+        
+        temporalNext.add(se);
     }
     
-    public transient Set<SwanEvent> happensBefore = null;
+    public void clearTemporalNext(){
+        if (temporalNext != null) {
+            temporalNext.clear();
+        }
+    }
+    
+    public Iterator<SwanEvent> getEdgeIteraror(){
+        Set<SwanEvent> temp = new HashSet<SwanEvent>();
+        if(happensBefore != null){
+            temp.addAll(happensBefore);
+        }
+        
+        if(temporalNext != null) {
+            temp.addAll(temporalNext);
+        }
+        
+        return temp.iterator();
+    }
 }

@@ -24,4 +24,8 @@ public class PMAP {
             throw new RuntimeException("PMAP error: cannot add null to a PMAP.");
         }
     }
+
+    List<MAP> getEdgeClosure() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

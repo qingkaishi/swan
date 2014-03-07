@@ -15,6 +15,7 @@ import java.util.Vector;
  * @author qingkaishi
  */
 public class PMAPSearcher {
+    private static final int k = 5;
 
     public static List<PMAP> search(Vector<SwanEvent> trace, KernelGraph kg) {
         List<MAP> maps = new ArrayList<MAP>();
@@ -33,6 +34,7 @@ public class PMAPSearcher {
         }
 
         List<PMAP> pmaps = new ArrayList<PMAP>();
+        int startIdx = 0;
         for (int i = 0; i < maps.size(); i++) {
             MAP mi = maps.get(i);
             for (int j = i + 1; j < maps.size(); j++) {
@@ -42,11 +44,11 @@ public class PMAPSearcher {
                     // single-variable atomicity violation.
                     if (mi.second().equals(mj.first())) {
                         if (mi.first().threadId == mj.second().threadId) {
-                            pairMap = (new PMAP(mi, mj));
+                            pmaps.add(new PMAP(mi, mj));
                         }
                     } else if (mi.first().equals(mj.second())) {
                         if (mi.second().threadId == mj.first().threadId) {
-                            pairMap = (new PMAP(mj, mi));
+                            pmaps.add(new PMAP(mj, mi));
                         }
                     }
                 } else {
@@ -54,20 +56,24 @@ public class PMAPSearcher {
                     if (mi.first().threadId == mj.second().threadId
                             && mi.second().threadId == mj.first().threadId) {
                         if (mi.isAllWrite() && mj.isAllWrite()) {
-                            pairMap = (new PMAP(mi, mj));
+                            pmaps.add(new PMAP(mi, mj));
                         }
 
                         if (!mi.isAllWrite() && !mj.isAllWrite()) {
-                            pairMap = (new PMAP(mi, mj));
+                            pmaps.add(new PMAP(mi, mj));
                         }
                     }
                 }
                 
-                if(pairMap!=null && kg.noSCCwith(pairMap)) {
-                    pmaps.add(pairMap);
+                // grouping pmaps for efficiency
+                if(pmaps.size() - startIdx == k) {
+                    kg.checkSCCwith(pmaps.subList(startIdx, pmaps.size()));
+                    startIdx = pmaps.size();
                 }
             }
         }
+        
+        kg.checkSCCwith(pmaps.subList(startIdx, pmaps.size()));
         return pmaps;
     }
 

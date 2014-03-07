@@ -9,6 +9,7 @@ import cn.edu.nju.software.libevent.SwanEvent;
 import java.io.FileWriter;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
@@ -20,10 +21,6 @@ public class KernelGraph {
 
     private static KernelGraph kg = null;
     private Vector<SwanEvent> allEvents = null;
-
-    boolean noSCCwith(PMAP pairMap) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 
     private enum OrderType {
 
@@ -215,6 +212,43 @@ public class KernelGraph {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+    }
+
+    boolean checkSCCwith(List<PMAP> list) {
+        // clear all temporal edges
+        for (SwanEvent se : allEvents) {
+            se.clearTemporalNext();
+        }
+        for (PMAP p : list) {
+            // add cached closed edges
+            List<MAP> edges = p.getEdgeClosure();
+            for (MAP e : edges) {
+                e.first().addTemporalNext(e.second());
+            }
+        }
+        // check whether there are SCCs
+        if (noSCC()) {
+            // if no SCCs, return
+            return true;
+        } else {
+            if (list.size() == 1) {
+                // if there is SCC, but only one cached pmap
+                list.clear();
+            } else {
+                // else check each cached pmap, respectively, also using the method
+                for (int i = 0; i < list.size(); i++) {
+                    boolean ret = checkSCCwith(list.subList(i, i + 1)); // FIXME, test it
+                    if (!ret) {
+                        i--;
+                    }
+                }
+            }
+            return false;
+        }
+    }
+
+    private boolean noSCC() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }
