@@ -16,6 +16,7 @@ The above operations should be performed after a bug is reported and before a fi
 javac -cp ./insufficiently_patched_version insufficiently_patched_version/example/Example.java # compile
 java -Xmx1024m -jar swan.jar --transform example.Example --class-path ./insufficiently_patched_version --patch :22,:27 # instrumentation with patch
 java -jar swan.jar --replay-record --test-case "example.Example" --class-path ./transformed_version_example_Example --trace ./orig.trace.gz # reproduce the buggy execution and record another one that contain the patch information
+java -jar swan.jar --generate --trace ./orig_patch.trace.gz # re-generate the orig trace using synchronization information
 ```
 
 * Example 2: stringbuffer.StringBufferTest

@@ -122,7 +122,7 @@ public class Swan {
 
                     urls[i] = file.toURI().toURL();
 
-                    System.out.println(urls[i]);
+                    //System.out.println(urls[i]);
                 }
 
                 URLClassLoader ucl = new URLClassLoader(urls);

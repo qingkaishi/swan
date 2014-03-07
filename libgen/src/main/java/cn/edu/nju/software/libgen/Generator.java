@@ -5,7 +5,15 @@
  */
 package cn.edu.nju.software.libgen;
 
+import cn.edu.nju.software.libevent.SwanEvent;
+import cn.edu.nju.software.libgen.util.KernelGraph;
+import cn.edu.nju.software.libgen.util.PMAP;
+import cn.edu.nju.software.libgen.util.PMAPSearcher;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.ObjectInputStream;
+import java.util.List;
+import java.util.Vector;
 
 /**
  *
@@ -14,14 +22,31 @@ import java.io.File;
 public class Generator {
 
     public static void startGeneration(String[] args) {
-        if(args.length < 1){
+        if (args.length < 1) {
             throw new RuntimeException("No trace file to re-generate.");
         }
-        
+
         String filename = args[0];
         File f = new File(filename);
         if (f.exists() && !f.isDirectory()) {
             // ...
+            try {
+                FileInputStream fis = new FileInputStream(f);
+                ObjectInputStream ois = new ObjectInputStream(fis);
+                Vector<SwanEvent> trace = (Vector<SwanEvent>) ois.readObject();
+                ois.close();
+
+                KernelGraph kg = KernelGraph.v(trace);
+                kg.test();
+                
+                List<PMAP> pmaps = PMAPSearcher.search(trace, kg);
+                System.out.println("[Swan] There are " + pmaps.size() + " possible atomicity violations to cover!");
+                List<PMAP> reduced_pmaps = PMAPSearcher.optimize(pmaps, kg);
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.exit(1);
+            }
+
         } else {
             throw new RuntimeException("Trace file error: " + f.getAbsolutePath() + ".");
         }

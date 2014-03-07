@@ -60,7 +60,7 @@ import soot.util.Chain;
  */
 public class VisitorForInstrumentation extends Visitor {
 
-    private static int debug_idx = 0;
+    private static int debug_idx = 1;
 
     public VisitorForInstrumentation(Visitor visitor) {
         super(visitor);
@@ -69,12 +69,16 @@ public class VisitorForInstrumentation extends Visitor {
     @Override
     public void visitStmtEnterMonitor(SootMethod sm, Chain units, EnterMonitorStmt enterMonitorStmt) {
         int linenumber = Visitor.getLineNum(enterMonitorStmt);
+        int xxx = debug_idx++;
+        if (Patch.v().contains(linenumber)) {
+            xxx = -xxx;
+        }
 
         LinkedList args = new LinkedList(); // arg list
         args.addLast(enterMonitorStmt.getOp()); // sv obj.
         args.addLast(IntConstant.v(st.getSize())); // sv no.
         args.addLast(IntConstant.v(linenumber));
-        args.addLast(IntConstant.v(debug_idx++)); // debug idx
+        args.addLast(IntConstant.v(xxx)); // debug idx
 
         SootMethodRef mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeLock(java.lang.Object,int,int,int)>").makeRef();
         SootMethodRef mrafter = Scene.v().getMethod("<" + observerClass + ": void myAfterLock(java.lang.Object,int,int,int)>").makeRef();
@@ -91,12 +95,16 @@ public class VisitorForInstrumentation extends Visitor {
     @Override
     public void visitStmtExitMonitor(SootMethod sm, Chain units, ExitMonitorStmt exitMonitorStmt) {
         int linenumber = Visitor.getLineNum(exitMonitorStmt);
+        int xxx = debug_idx++;
+        if (Patch.v().contains(linenumber)) {
+            xxx = -xxx;
+        }
 
         LinkedList args = new LinkedList(); // arg list
         args.addLast(exitMonitorStmt.getOp()); // sv obj.
         args.addLast(IntConstant.v(st.getSize())); // sv no.
         args.addLast(IntConstant.v(linenumber));
-        args.addLast(IntConstant.v(debug_idx++)); // debug idx
+        args.addLast(IntConstant.v(xxx)); // debug idx
 
         SootMethodRef mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeUnlock(java.lang.Object,int,int,int)>").makeRef();
         SootMethodRef mrafter = Scene.v().getMethod("<" + observerClass + ": void myAfterUnlock(java.lang.Object,int,int,int)>").makeRef();
@@ -339,11 +347,15 @@ public class VisitorForInstrumentation extends Visitor {
     public void visitMethodEnd(SootMethod sm, Chain units) {
         if (sm.isSynchronized()) {
             int linenumber = getLineNum(sm);
+            int xxx = debug_idx++;
+            if (Patch.v().contains(linenumber)) {
+                xxx = -xxx;
+            }
 
             LinkedList args = new LinkedList(); // arg list        
             args.addLast(IntConstant.v(st.getSize())); // sv no.
             args.addLast(IntConstant.v(linenumber)); // line no.
-            args.addLast(IntConstant.v(debug_idx++)); // debug idx !!!
+            args.addLast(IntConstant.v(xxx)); // debug idx !!!
             SootMethodRef mrafter = null;
             if (sm.isStatic()) {
                 args.addFirst(StringConstant.v(sm.getDeclaringClass().getName())); // sv obj.

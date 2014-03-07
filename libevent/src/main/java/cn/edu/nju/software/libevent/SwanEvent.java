@@ -6,7 +6,9 @@
 package cn.edu.nju.software.libevent;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Vector;
 
 /**
@@ -23,6 +25,7 @@ public class SwanEvent implements Serializable {
     public int threadId, sharedMemId, lineNo;
     public AccessType accessType;
     public Vector<Integer> lockIds = new Vector<Integer>();
+    public boolean patchedEvent = false;
 
     public SwanEvent(int threadId, int sharedMemId, List<Integer> curlockIds, AccessType accessType, int lineNo) {
         this.threadId = threadId;
@@ -32,4 +35,6 @@ public class SwanEvent implements Serializable {
         if(curlockIds!=null)
             this.lockIds.addAll(curlockIds);
     }
+    
+    public transient Set<SwanEvent> happensBefore = null;
 }

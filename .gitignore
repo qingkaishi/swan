@@ -7,3 +7,5 @@ swan.jar
 libtransform.jar
 libmonitor.jar
 libgen.jar
+*.dot
+*.png

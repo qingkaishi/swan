@@ -44,8 +44,15 @@ public class ReplayRecordMonitor extends MonitorWorker {
         curLockIds.add(lockId);
         SwanEvent se = new SwanEvent(tid,
                 lockId, curLockIds, SwanEvent.AccessType.ACQUIRE, lineno);
-        matchUsingObject(o, se);
+        if (debug < 0) {
+        } else {
+            matchUsingObject(o, se);
+        }
         newTrace.add(se);
+
+        if (debug < 0) {
+            se.patchedEvent = true;
+        }
     }
 
     @Override
@@ -61,10 +68,16 @@ public class ReplayRecordMonitor extends MonitorWorker {
 
         SwanEvent se = new SwanEvent(tid,
                 lockId, curLockIds, SwanEvent.AccessType.RELEASE, lineno);
-        matchUsingObject(o, se);
-        
+        if (debug < 0) {
+        } else {
+            matchUsingObject(o, se);
+        }
+
         newTrace.add(se);
         curLockIds.remove(lockId);
+        if (debug < 0) {
+            se.patchedEvent = true;
+        }
     }
 
     @Override
@@ -84,7 +97,7 @@ public class ReplayRecordMonitor extends MonitorWorker {
         SwanEvent se = new SwanEvent(tid,
                 lockId, curLockIds, SwanEvent.AccessType.WAIT_RELEASE, lineno);
         matchUsingObject(o, se);
-        
+
         newTrace.add(se);
         curLockIds.remove(lockId);
     }
@@ -103,7 +116,7 @@ public class ReplayRecordMonitor extends MonitorWorker {
         SwanEvent se = new SwanEvent(tid,
                 lockId, curLockIds, SwanEvent.AccessType.WAIT_ACQUIRE, lineno);
         matchUsingObject(o, se);
-        
+
         newTrace.add(se);
     }
 
@@ -202,14 +215,21 @@ public class ReplayRecordMonitor extends MonitorWorker {
 
         int tid = threads.indexOf(Thread.currentThread());
         int lockId = this.getLockObjectId(o);
-        
+
         List<Integer> curLockIds = lockObjects.get(tid);
         curLockIds.add(lockId);
 
         SwanEvent se = new SwanEvent(tid,
                 lockId, curLockIds, SwanEvent.AccessType.ACQUIRE, lineno);
-        matchUsingObject(o, se);
+        if (debug < 0) {
+        } else {
+            matchUsingObject(o, se);
+        }
         newTrace.add(se);
+
+        if (debug < 0) {
+            se.patchedEvent = true;
+        }
     }
 
     @Override
@@ -224,9 +244,16 @@ public class ReplayRecordMonitor extends MonitorWorker {
         List<Integer> curLockIds = lockObjects.get(tid);
         SwanEvent se = new SwanEvent(tid,
                 lockId, curLockIds, SwanEvent.AccessType.RELEASE, lineno);
-        matchUsingObject(o, se);
+        if (debug < 0) {
+        } else {
+            matchUsingObject(o, se);
+        }
         newTrace.add(se);
         curLockIds.remove(lockId);
+
+        if (debug < 0) {
+            se.patchedEvent = true;
+        }
     }
 
     @Override
@@ -242,14 +269,21 @@ public class ReplayRecordMonitor extends MonitorWorker {
 
                 int tid = threads.indexOf(Thread.currentThread());
                 int lockId = this.getLockObjectId(c);
-                
+
                 List<Integer> curLockIds = lockObjects.get(tid);
                 curLockIds.add(lockId);
 
                 SwanEvent se = new SwanEvent(tid,
                         lockId, curLockIds, SwanEvent.AccessType.ACQUIRE, lineno);
-                matchUsingObject(c, se);
+                if (debug < 0) {
+                } else {
+                    matchUsingObject(c, se);
+                }
                 newTrace.add(se);
+
+                if (debug < 0) {
+                    se.patchedEvent = true;
+                }
             } catch (ClassNotFoundException ex) {
                 ex.printStackTrace();
                 System.exit(1);
@@ -275,9 +309,16 @@ public class ReplayRecordMonitor extends MonitorWorker {
                 SwanEvent se = new SwanEvent(tid,
                         lockId, curLockIds, SwanEvent.AccessType.RELEASE, lineno);
 
-                matchUsingObject(c, se);
+                if (debug < 0) {
+                } else {
+                    matchUsingObject(c, se);
+                }
                 newTrace.add(se);
                 curLockIds.remove(lockId);
+
+                if (debug < 0) {
+                    se.patchedEvent = true;
+                }
             } catch (ClassNotFoundException ex) {
                 ex.printStackTrace();
                 System.exit(1);
@@ -399,7 +440,7 @@ public class ReplayRecordMonitor extends MonitorWorker {
         if (se1.equals(se2)) {
             return true;
         }
-        
+
         return (se1.sharedMemId == se2.sharedMemId || (se1.sharedMemId < 0 && se2.sharedMemId < 0))
                 && se1.accessType == se2.accessType
                 && se1.threadId == se2.threadId;
