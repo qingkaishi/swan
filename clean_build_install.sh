@@ -36,6 +36,7 @@ mvn clean
 mvn package
 
 # our libs
+mvn install:install-file -Dfile=$selfdir/libevent/target/libevent-1.0-SNAPSHOT.jar -DartifactId=libevent -DgroupId=cn.edu.nju.software -Dversion=1.0-SNAPSHOT -Dpackaging=jar -DgeneratePom=true
 mvn install:install-file -Dfile=$selfdir/libmonitor/target/libmonitor-1.0-SNAPSHOT.jar -DartifactId=libmonitor -DgroupId=cn.edu.nju.software -Dversion=1.0-SNAPSHOT -Dpackaging=jar -DgeneratePom=true
 mvn install:install-file -Dfile=$selfdir/libtransform/target/libtransform-1.0-SNAPSHOT.jar -DartifactId=libtransform -DgroupId=cn.edu.nju.software -Dversion=1.0-SNAPSHOT -Dpackaging=jar -DgeneratePom=true
 mvn install:install-file -Dfile=$selfdir/libgen/target/libgen-1.0-SNAPSHOT.jar -DartifactId=libgen -DgroupId=cn.edu.nju.software -Dversion=1.0-SNAPSHOT -Dpackaging=jar -DgeneratePom=true

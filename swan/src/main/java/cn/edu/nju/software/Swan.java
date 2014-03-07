@@ -26,7 +26,7 @@ public class Swan {
         opt.addOption("R", "replay", false, "reproduce an exacution.");
         opt.addOption("e", "replay-record", false, "replay and record an exacution as a trace.");
         opt.addOption("x", "replay-examine", false, "replay a trace to examine fixes.");
-        opt.addOption("g", "generate", true, "generate traces that may expose bugs.");
+        opt.addOption("g", "generate", false, "generate traces that may expose bugs.");
 
         opt.addOption("p", "patch", true, "the line number you synchronize your codes, e.g. ClassName:20,ClassName:21, or :20,:21 if there is no ambiguity.");
         opt.addOption("T", "trace", true, "the input trace.");
@@ -68,7 +68,7 @@ public class Swan {
                 Class<?> c = Class.forName(appname);
                 Class[] argTypes = new Class[]{String[].class};
                 Method main = c.getDeclaredMethod("startGeneration", argTypes);
-                String[] mainArgs = cl.getOptionValues("g");
+                String[] mainArgs = cl.getOptionValues("T");
                 main.invoke(null, (Object) mainArgs);
             } else {
                 // check args

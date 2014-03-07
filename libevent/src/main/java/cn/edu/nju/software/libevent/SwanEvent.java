@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cn.edu.nju.software.libmonitor.event;
+package cn.edu.nju.software.libevent;
 
 import java.io.Serializable;
 import java.util.List;

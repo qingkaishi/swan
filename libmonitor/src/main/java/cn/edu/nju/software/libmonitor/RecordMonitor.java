@@ -5,7 +5,7 @@
  */
 package cn.edu.nju.software.libmonitor;
 
-import cn.edu.nju.software.libmonitor.event.SwanEvent;
+import cn.edu.nju.software.libevent.SwanEvent;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;

@@ -5,7 +5,7 @@
  */
 package cn.edu.nju.software.libmonitor;
 
-import cn.edu.nju.software.libmonitor.event.SwanEvent;
+import cn.edu.nju.software.libevent.SwanEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
