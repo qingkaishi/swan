@@ -9,6 +9,7 @@ package cn.edu.nju.software.libgen.util;
 import cn.edu.nju.software.libevent.SwanEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 /**
  *
@@ -16,6 +17,7 @@ import java.util.List;
  */
 class MAP {
     private List<SwanEvent> pair = new ArrayList<SwanEvent>(2);
+    private MAP closure = null;
     
     public MAP(SwanEvent p1, SwanEvent p2){
         if(p1!=null && p2!=null){
@@ -43,5 +45,19 @@ class MAP {
     boolean isAllWrite() {
         return this.first().accessType == SwanEvent.AccessType.WRITE 
                 && this.second().accessType == SwanEvent.AccessType.WRITE; 
+    }
+
+    MAP getEdgeClosure() {
+        if(closure == null) {
+            SwanEvent from = first();
+            SwanEvent to = second();
+            Vector<Integer> lset1 = new Vector<Integer>(from.lockIds);
+            Vector<Integer> lset2 = to.lockIds;
+            
+            lset1.retainAll(lset2); //TODO
+            // lset1 is the common locks belongs to e1 and e2
+            // check events after e1, and those before e2
+        }
+        return closure;
     }
 }

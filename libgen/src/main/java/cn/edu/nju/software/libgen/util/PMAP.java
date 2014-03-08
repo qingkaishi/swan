@@ -15,6 +15,7 @@ import java.util.List;
  */
 public class PMAP {
     private List<MAP> pair = new ArrayList<MAP>(2);
+    private PMAP closure = null;
     
     public PMAP(MAP p1, MAP p2){
         if(p1!=null && p2!=null){
@@ -24,8 +25,21 @@ public class PMAP {
             throw new RuntimeException("PMAP error: cannot add null to a PMAP.");
         }
     }
+    
+    MAP first() {
+        return pair.get(0);
+    }
+    
+    MAP second() {
+        return pair.get(1);
+    }
 
-    List<MAP> getEdgeClosure() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    PMAP getEdgeClosure() {
+        if(closure == null){
+            MAP one = first().getEdgeClosure();
+            MAP two = second().getEdgeClosure();
+            closure = new PMAP(one, two);
+        }
+        return closure;
     }
 }

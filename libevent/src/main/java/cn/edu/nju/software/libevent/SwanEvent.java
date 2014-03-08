@@ -40,6 +40,8 @@ public class SwanEvent implements Serializable {
 
     public transient Set<SwanEvent> happensBefore = null;
     public transient Set<SwanEvent> temporalNext = null;
+    public transient SwanEvent sameThreadNext = null;
+    public transient SwanEvent sameThreadLast = null;
 
     public void addTemporalNext(SwanEvent se) {
         if (temporalNext == null) {

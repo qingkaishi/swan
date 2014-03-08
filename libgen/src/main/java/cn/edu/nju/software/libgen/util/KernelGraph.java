@@ -44,6 +44,8 @@ public class KernelGraph {
                     OrderType ot = getOrderType(ise, i, jse, j);
 
                     if (ot == OrderType.ProgramOrder && !findFirstSameThread) {
+                        ise.sameThreadNext = jse;
+                        jse.sameThreadLast = ise;
                         ise.happensBefore.add(jse);
                         findFirstSameThread = true;
                     } else if (ot == OrderType.ForkOrder && !findFirstFork) {
@@ -61,6 +63,8 @@ public class KernelGraph {
                     OrderType ot = getOrderType(ise, i, jse, j);
 
                     if (ot == OrderType.ProgramOrder && !findFirstSameThread) {
+                        ise.sameThreadNext = jse;
+                        jse.sameThreadLast = ise;
                         ise.happensBefore.add(jse);
                         break;
                     }
@@ -81,6 +85,8 @@ public class KernelGraph {
                     OrderType ot = getOrderType(ise, i, jse, j);
 
                     if (ot == OrderType.ProgramOrder && !findFirstSameThread) {
+                        ise.sameThreadNext = jse;
+                        jse.sameThreadLast = ise;
                         ise.happensBefore.add(jse);
                         findFirstSameThread = true;
                     } else if (ot == OrderType.WaitOrder && !findFirstWait) {
@@ -99,6 +105,8 @@ public class KernelGraph {
                     OrderType ot = getOrderType(ise, i, jse, j);
 
                     if (ot == OrderType.ProgramOrder && !findFirstSameThread) {
+                        ise.sameThreadNext = jse;
+                        jse.sameThreadLast = ise;
                         ise.happensBefore.add(jse);
                         findFirstSameThread = true;
                     } else if (ot == OrderType.NotifyOrder && !findFirstNotify) {
@@ -118,6 +126,8 @@ public class KernelGraph {
                     OrderType ot = getOrderType(ise, i, jse, j);
 
                     if (ot == OrderType.ProgramOrder && !findFirstSameThread) {
+                        ise.sameThreadNext = jse;
+                        jse.sameThreadLast = ise;
                         ise.happensBefore.add(jse);
                         findFirstSameThread = true;
                     } else if (ot == OrderType.NotifyOrder && temp.contains(jse.threadId)) {
@@ -135,6 +145,8 @@ public class KernelGraph {
                     OrderType ot = getOrderType(ise, i, jse, j);
 
                     if (ot == OrderType.ProgramOrder && !findFirstSameThread) {
+                        ise.sameThreadNext = jse;
+                        jse.sameThreadLast = ise;
                         ise.happensBefore.add(jse);
                         break;
                     }
@@ -221,10 +233,9 @@ public class KernelGraph {
         }
         for (PMAP p : list) {
             // add cached closed edges
-            List<MAP> edges = p.getEdgeClosure();
-            for (MAP e : edges) {
-                e.first().addTemporalNext(e.second());
-            }
+            PMAP edges = p.getEdgeClosure();
+            edges.first().first().addTemporalNext(edges.first().second());
+            edges.second().first().addTemporalNext(edges.second().second());
         }
         // check whether there are SCCs
         if (noSCC()) {
