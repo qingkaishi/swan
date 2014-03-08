@@ -4,7 +4,7 @@ usage
 Example 1: example.Example
 ---------------------------
 
-* original version (URLParse.java)
+### original version (URLParse.java)
 
         synchronized String getVal(String key) {
 		int keyPos = url.indexOf(key);
@@ -26,7 +26,7 @@ Example 1: example.Example
 		return url.substring(valPos, ampPos);
         }
 
-* insufficiently patched version
+### insufficiently patched version
 
         synchronized String getVal(String key) {
 		int keyPos = url.indexOf(key);
@@ -52,7 +52,7 @@ Example 1: example.Example
 		return url.substring(valPos, ampPos);
         }
 
-* how to examine it
+### how to examine it
 
 ```bash
 javac -cp ./orig_version orig_version/example/Example.java # compile
@@ -70,11 +70,11 @@ java -jar swan.jar --replay-record --test-case "example.Example" --class-path ./
 java -jar swan.jar --generate --trace ./orig_patch.trace.gz # re-generate the orig trace using synchronization information
 ```
 
-* sufficiently-patched version
+### sufficiently patched version
 
 
         synchronized String getVal(String key) {
-		int keyPos = url.indexOf(key);
+		int keyPos = <b>url</b>.indexOf(key);
 		int valPos = url.indexOf("=", keyPos) + 1;
 		int ampPos = url.indexOf("&", keyPos);
 		if (ampPos < 0)
@@ -96,6 +96,46 @@ java -jar swan.jar --generate --trace ./orig_patch.trace.gz # re-generate the or
 Example 2: stringbuffer.StringBufferTest
 ------------------------------------------
 
+### original version (StringBuffer.java)
+
+        synchronized StringBuffer delete(int start, int end) {
+            ...
+                                                                    synchronized StringBuffer append(StringBuffer sb) {
+                                                                            ...
+                                                                            int newcount = *count* + len;
+            *count* -= len;
+                                                                              
+                                                                            if (newcount > value.length)
+                                                                                 ...
+                                                                                 sb.getChars(0, len, value, *count*);
+                                                                                 ...
+                                                                            }
+            ...
+            return this;
+        }
+
+
+### insufficently patched version
+
+        synchronized StringBuffer delete(int start, int end) {
+            ...
+                                                                    synchronized StringBuffer append(StringBuffer sb) {
+                                                                            ...
+                                                                            int newcount = *count* + len;
+            *count* -= len;
+                                                                            synchronized(sb){  
+                                                                            if (newcount > value.length)
+                                                                                 ...
+                                                                                 sb.getChars(0, len, value, *count*);
+                                                                                 ...
+                                                                            }
+                                                                            }
+            ...
+            return this;
+        }
+
+### how to examine it
+
 ```bash
 javac -cp ./orig_version orig_version/stringbuffer/StringBufferTest.java # compile
 java -Xmx1024m  -jar swan.jar -t stringbuffer.StringBufferTest -P ./orig_version # instrumentation
@@ -109,3 +149,24 @@ java -Xmx1024m -jar swan.jar -t stringbuffer.StringBufferTest -P ./insufficientl
 java -jar swan.jar -e -c "stringbuffer.StringBufferTest" -P ./transformed_version_stringbuffer_StringBufferTest -T ./orig.trace.gz # reproduce the buggy execution and record another one that contain the patch information
 java -jar swan.jar -g -T ./orig_patch.trace.gz # re-generate the orig trace using synchronization information
 ```
+
+### sufficiently patched version
+
+        synchronized StringBuffer delete(int start, int end) {
+            ...
+                                                                    synchronized StringBuffer append(StringBuffer sb) {
+                                                                            ...
+                                                                            synchronized(sb){ 
+                                                                            int newcount = *count* + len;
+            *count* -= len;
+                                                                             
+                                                                            if (newcount > value.length)
+                                                                                 ...
+                                                                                 sb.getChars(0, len, value, *count* );
+                                                                                 ...
+                                                                            }
+                                                                            }
+            ...
+            return this;
+        }
+
