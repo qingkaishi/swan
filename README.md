@@ -53,7 +53,7 @@ for different objects, which will make the global object _handlerMap_ broken.
 
 Usage
 -------
-See the example in directory demo/READM.md.
+See the example in demo/READM.md.
 
 Bugs
 ------
