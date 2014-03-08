@@ -3,7 +3,6 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package cn.edu.nju.software.libgen.util;
 
 import cn.edu.nju.software.libevent.SwanEvent;
@@ -16,14 +15,15 @@ import java.util.Vector;
  * @author qingkaishi
  */
 class MAP {
+
     private List<SwanEvent> pair = new ArrayList<SwanEvent>(2);
     private MAP closure = null;
-    
-    public MAP(SwanEvent p1, SwanEvent p2){
-        if(p1!=null && p2!=null){
+
+    public MAP(SwanEvent p1, SwanEvent p2) {
+        if (p1 != null && p2 != null) {
             pair.add(p1);
             pair.add(p2);
-        }else{
+        } else {
             throw new RuntimeException("MAP error: cannot add null to an MAP.");
         }
     }
@@ -33,31 +33,95 @@ class MAP {
         int thatSvId = mj.pair.get(0).sharedMemId;
         return thisSvId == thatSvId;
     }
-    
+
     SwanEvent first() {
         return pair.get(0);
     }
-    
+
     SwanEvent second() {
         return pair.get(1);
     }
 
     boolean isAllWrite() {
-        return this.first().accessType == SwanEvent.AccessType.WRITE 
-                && this.second().accessType == SwanEvent.AccessType.WRITE; 
+        return this.first().accessType == SwanEvent.AccessType.WRITE
+                && this.second().accessType == SwanEvent.AccessType.WRITE;
     }
 
     MAP getEdgeClosure() {
-        if(closure == null) {
+        if (closure == null) {
             SwanEvent from = first();
             SwanEvent to = second();
             Vector<Integer> lset1 = new Vector<Integer>(from.lockIds);
             Vector<Integer> lset2 = to.lockIds;
-            
-            lset1.retainAll(lset2); //TODO
-            // lset1 is the common locks belongs to e1 and e2
-            // check events after e1, and those before e2
+
+            lset1.retainAll(lset2);
+            SwanEvent n = from;
+            while (n != null) {
+                SwanEvent tmp = n.sameThreadNext;
+                if (tmp == null) {
+                    break;
+                }
+
+                if (n.accessType == SwanEvent.AccessType.RELEASE
+                        || n.accessType == SwanEvent.AccessType.WAIT_RELEASE) {
+                    Vector<Integer> lsetTmp = tmp.lockIds;
+                    // check whether lsetTmp contains some locks in lset1
+                    if (!containsLockIn(lsetTmp, lset1)) {
+                        break;
+                    }
+                }
+                n = tmp;
+            }
+
+            SwanEvent m = to;
+            while (m != null) {
+                SwanEvent tmp = m.sameThreadLast;
+                if (tmp == null) {
+                    break;
+                }
+
+                if (m.accessType == SwanEvent.AccessType.ACQUIRE
+                        || m.accessType == SwanEvent.AccessType.WAIT_ACQUIRE) {
+
+                    Vector<Integer> lsetTmp = tmp.lockIds;
+                    // check whether lsetTmp contains some locks in lset1
+                    if (!containsLockIn(lsetTmp, lset1)) {
+                        break;
+                    }
+                }
+                m = tmp;
+            }
+            closure = new MAP(n, m);
         }
         return closure;
+    }
+
+    // check whether there exists a lock in set2, also exists in set1
+    private boolean containsLockIn(Vector<Integer> set1, Vector<Integer> lockset) {
+        for (int i = 0; i < lockset.size(); i++) {
+            int l = lockset.get(i);
+            if (set1.contains(l)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    boolean implies(MAP m) {
+        MAP thisClosure = this.closure;
+        MAP mClosure = m.closure;
+        
+        SwanEvent thisFrom = thisClosure.first();
+        SwanEvent thisTo = thisClosure.second();
+        
+        SwanEvent mFrom = mClosure.first();
+        SwanEvent mTo = mClosure.second();
+
+        if (mFrom.threadId == thisFrom.threadId
+                && mTo.threadId == thisTo.threadId) {
+            return mFrom.idx <= thisFrom.idx 
+                    && mTo.idx >= thisTo.idx;
+        }
+        return false;
     }
 }

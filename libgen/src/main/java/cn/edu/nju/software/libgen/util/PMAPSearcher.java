@@ -15,6 +15,7 @@ import java.util.Vector;
  * @author qingkaishi
  */
 public class PMAPSearcher {
+
     private static final int k = 5;
 
     public static List<PMAP> search(Vector<SwanEvent> trace, KernelGraph kg) {
@@ -64,21 +65,40 @@ public class PMAPSearcher {
                         }
                     }
                 }
-                
+
                 // grouping pmaps for efficiency
-                if(pmaps.size() - startIdx == k) {
+                if (pmaps.size() - startIdx == k) {
                     kg.checkSCCwith(pmaps.subList(startIdx, pmaps.size()));
                     startIdx = pmaps.size();
                 }
             }
         }
-        
+
         kg.checkSCCwith(pmaps.subList(startIdx, pmaps.size()));
         return pmaps;
     }
 
     public static List<PMAP> optimize(List<PMAP> pmaps, KernelGraph kg) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        for (int i = 1; i < pmaps.size(); i++) {
+            PMAP pi = pmaps.get(i);
+            for (int j = 0; j < i; j++) {
+                PMAP pj = pmaps.get(j);
+                if (pi.implies(pj)) {
+                    pmaps.set(j, pi);
+                    pmaps.remove(i);
+                    i--;
+                    break;
+                }
+
+                if (pj.implies(pi)) {
+                    pmaps.remove(i);
+                    i--;
+                    break;
+                }
+            }
+        }
+
+        return pmaps;
     }
 
 }

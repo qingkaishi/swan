@@ -42,6 +42,7 @@ public class SwanEvent implements Serializable {
     public transient Set<SwanEvent> temporalNext = null;
     public transient SwanEvent sameThreadNext = null;
     public transient SwanEvent sameThreadLast = null;
+    public transient int idx;
 
     public void addTemporalNext(SwanEvent se) {
         if (temporalNext == null) {
@@ -49,6 +50,30 @@ public class SwanEvent implements Serializable {
         }
         
         temporalNext.add(se);
+    }
+    
+    public void removeTemporalNext(SwanEvent se) {
+        if (temporalNext == null) {
+            return;
+        }
+        
+        temporalNext.remove(se);
+    }
+    
+    public boolean containsTemporalNext(SwanEvent se) {
+        if (temporalNext == null) {
+            return false;
+        }
+        
+        return temporalNext.contains(se);
+    }
+    
+    public boolean containsHappensBeforeNext(SwanEvent se) {
+        if (happensBefore == null) {
+            return false;
+        }
+        
+        return happensBefore.contains(se);
     }
     
     public void clearTemporalNext(){

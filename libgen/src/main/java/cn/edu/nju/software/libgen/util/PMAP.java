@@ -42,4 +42,21 @@ public class PMAP {
         }
         return closure;
     }
+
+    boolean implies(PMAP p) {
+        MAP one = first();
+        MAP two = second();
+        
+        MAP pone = p.first();
+        MAP ptwo = p.second();
+        
+        if(one.implies(pone) && two.implies(ptwo)){
+            return true;
+        }
+        
+        if(one.implies(ptwo) && two.implies(pone)){
+            return true;
+        }
+        return false;
+    }
 }

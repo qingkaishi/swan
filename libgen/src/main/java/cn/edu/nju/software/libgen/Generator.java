@@ -42,6 +42,9 @@ public class Generator {
                 List<PMAP> pmaps = PMAPSearcher.search(trace, kg);
                 System.out.println("[Swan] There are " + pmaps.size() + " possible atomicity violations to cover!");
                 List<PMAP> reduced_pmaps = PMAPSearcher.optimize(pmaps, kg);
+                System.out.println("[Swan] There are ONLY " + reduced_pmaps.size() + " possible atomicity violations AFTER OPTIMIZATIONS!");
+            
+                kg.generateTestSchedules(reduced_pmaps);
             } catch (Exception e) {
                 e.printStackTrace();
                 System.exit(1);
