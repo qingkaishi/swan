@@ -74,7 +74,7 @@ java -jar swan.jar --generate --trace ./orig_patch.trace.gz # re-generate the or
 
 
         synchronized String getVal(String key) {
-		int keyPos = <b>url</b>.indexOf(key);
+		int keyPos = url.indexOf(key);
 		int valPos = url.indexOf("=", keyPos) + 1;
 		int ampPos = url.indexOf("&", keyPos);
 		if (ampPos < 0)
