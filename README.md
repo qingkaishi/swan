@@ -20,26 +20,22 @@ What is insufficient synchronization?
 -------------------------------------
 
 ### Using equivalent lock, but excluding some critical statements
-        if (membership
-                .memberAlive(m)) {
-                                         synchronize(...){
-                                         McastMember[] expired
-                                                   = membership.expire(...);
-                                         for ( int i=0; i<expired.length; i++) {
-                                             ...
-                                             service.
-                                                  memberDisappeared(expired[i]);
-                                         }
-                                         }
+        if (membership.memberAlive(m)) {
+                                                 synchronize(...){
+                                                     McastMember[] expired= membership.expire(...);
+                                                     for ( int i=0; i<expired.length; i++) {
+                                                         ...
+                                                         service.memberDisappeared(expired[i]);
+                                                     }
+                                                 }
             ...
             synchronize(...){
-            service
-                .memberAdded(m);
+                service.memberAdded(m);
             }
         }
 
 The example is a multi-variable atomicity violation about _membership_ and 
-_service_. The synchronization uses equivalent lock, but exclude the first if 
+_service_. The synchronization uses equivalent lock, but excludes the first if 
 statement from the critical section.
 
 ### Synchronizing all codes, but using non-equivalent locks
