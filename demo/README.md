@@ -32,5 +32,5 @@ java -jar swan.jar -R -c "stringbuffer.StringBufferTest" -P ./transformed_versio
 javac -cp ./insufficiently_patched_version insufficiently_patched_version/stringbuffer/StringBufferTest.java # compile
 java -Xmx1024m -jar swan.jar -t stringbuffer.StringBufferTest -P ./insufficiently_patched_version -p :443,:448 # instrumentation with patch
 java -jar swan.jar -e -c "stringbuffer.StringBufferTest" -P ./transformed_version_stringbuffer_StringBufferTest -T ./orig.trace.gz # reproduce the buggy execution and record another one that contain the patch information
-java -jar swan.jar --generate --trace ./orig_patch.trace.gz # re-generate the orig trace using synchronization information
+java -jar swan.jar -g -T ./orig_patch.trace.gz # re-generate the orig trace using synchronization information
 ```
