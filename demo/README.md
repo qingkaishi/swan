@@ -1,7 +1,58 @@
 usage
 =====
 
-* Example 1: example.Example
+Example 1: example.Example
+---------------------------
+
+* original version (URLParse.java)
+
+        synchronized String getVal(String key) {
+		int keyPos = url.indexOf(key);
+		int valPos = url.indexOf("=", keyPos) + 1;
+		int ampPos = url.indexOf("&", keyPos);
+		if (ampPos < 0)
+			ampPos = url.length();
+
+                                                                   void replaceVal(String key, String newVal) {
+                                                                           int keyPos = url.indexOf(key);
+                                                                           int valPos = url.indexOf("=", keyPos) + 1;
+                                                                           int ampPos = url.indexOf("&", keyPos);
+                                                                           if (ampPos < 0)
+                                                                               ampPos = url.length();
+                                                                           url = url.substring(0, valPos) 
+                                                                                       + newVal + url.substring(ampPos);
+                                                                   }
+
+		return url.substring(valPos, ampPos);
+        }
+
+* insufficiently patched version
+
+        synchronized String getVal(String key) {
+		int keyPos = url.indexOf(key);
+		int valPos = url.indexOf("=", keyPos) + 1;
+		int ampPos = url.indexOf("&", keyPos);
+		if (ampPos < 0)
+			ampPos = url.length();
+
+                                                                   void replaceVal(String key, String newVal) {
+                                                                           int keyPos = url.indexOf(key);
+                                                                           int valPos = url.indexOf("=", keyPos) + 1;
+
+                                                                           synchronized(this){
+
+                                                                           int ampPos = url.indexOf("&", keyPos);
+                                                                           if (ampPos < 0)
+                                                                               ampPos = url.length();
+                                                                           url = url.substring(0, valPos) 
+                                                                                       + newVal + url.substring(ampPos);
+                                                                           }
+                                                                   }
+
+		return url.substring(valPos, ampPos);
+        }
+
+* how to examine it
 
 ```bash
 javac -cp ./orig_version orig_version/example/Example.java # compile
@@ -19,7 +70,31 @@ java -jar swan.jar --replay-record --test-case "example.Example" --class-path ./
 java -jar swan.jar --generate --trace ./orig_patch.trace.gz # re-generate the orig trace using synchronization information
 ```
 
-* Example 2: stringbuffer.StringBufferTest
+* sufficiently-patched version
+
+
+        synchronized String getVal(String key) {
+		int keyPos = url.indexOf(key);
+		int valPos = url.indexOf("=", keyPos) + 1;
+		int ampPos = url.indexOf("&", keyPos);
+		if (ampPos < 0)
+			ampPos = url.length();
+
+                                                                   synchronized void replaceVal(String key, String newVal) {
+                                                                           int keyPos = url.indexOf(key);
+                                                                           int valPos = url.indexOf("=", keyPos) + 1;
+                                                                           int ampPos = url.indexOf("&", keyPos);
+                                                                           if (ampPos < 0)
+                                                                               ampPos = url.length();
+                                                                           url = url.substring(0, valPos) 
+                                                                                       + newVal + url.substring(ampPos);
+                                                                   }
+
+		return url.substring(valPos, ampPos);
+        }
+
+Example 2: stringbuffer.StringBufferTest
+------------------------------------------
 
 ```bash
 javac -cp ./orig_version orig_version/stringbuffer/StringBufferTest.java # compile

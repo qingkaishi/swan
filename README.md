@@ -19,7 +19,7 @@ than the state-of-the-arts.
 What is insufficient synchronization?
 -------------------------------------
 
-### Using equivalent lock, but exclude some critical statements
+### Using equivalent lock, but excluding some critical statements
         if (membership
                 .memberAlive(m)) {
                                          synchronize(...){
