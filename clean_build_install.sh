@@ -32,8 +32,10 @@ mvn install:install-file -Dfile=$selfdir/third-party/commons-cli-1.2.jar -Dartif
 mvn install:install-file -Dfile=$selfdir/third-party/soot-2.4.0.jar -DartifactId=soot -DgroupId=soot -Dversion=2.4.0 -Dpackaging=jar -DgeneratePom=true
 mvn install:install-file -Dfile=$selfdir/third-party/asm-3.1.jar -DartifactId=asm -DgroupId=asm -Dversion=3.1 -Dpackaging=jar -DgeneratePom=true
 
+cd $selfdir
 mvn clean
 mvn package
+cd $cur
 
 # our libs
 mvn install:install-file -Dfile=$selfdir/libevent/target/libevent-1.0-SNAPSHOT.jar -DartifactId=libevent -DgroupId=cn.edu.nju.software -Dversion=1.0-SNAPSHOT -Dpackaging=jar -DgeneratePom=true

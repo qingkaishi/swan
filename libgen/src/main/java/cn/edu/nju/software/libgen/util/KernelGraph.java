@@ -6,10 +6,13 @@
 package cn.edu.nju.software.libgen.util;
 
 import cn.edu.nju.software.libevent.SwanEvent;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
@@ -224,9 +227,9 @@ public class KernelGraph {
                 SwanEvent ei = allEvents.get(i);
 
                 if (ei.patchedEvent) {
-                    fw.append("a" + i + "[label=\"NEW " + ei.accessType.name() + "\"];\n");
+                    fw.append("a" + i + "[label=\"NEW " + ei.accessType.name() + "(" + ei.idx + ")" + ei.sharedMemId + "\"];\n");
                 } else {
-                    fw.append("a" + i + "[label=\"" + ei.accessType.name() + "\"];\n");
+                    fw.append("a" + i + "[label=\"" + ei.accessType.name() + "(" + ei.idx + ")" + ei.sharedMemId + "\"];\n");
                 }
 
                 Set<SwanEvent> hb = ei.happensBefore;
@@ -244,6 +247,7 @@ public class KernelGraph {
     }
 
     public void generateTestSchedules(List<PMAP> tocover) {
+        int idx = 0;
         int k = 5;
         while (!tocover.isEmpty()) {
             // clear
@@ -264,17 +268,74 @@ public class KernelGraph {
             // add other orders
             List<MAP> backup = new ArrayList<MAP>(temporalOrders);
             while (!backup.isEmpty()) {
-                List<MAP> list = backup.subList(0, backup.size() >= k ? k: backup.size());
+                List<MAP> list = backup.subList(0, backup.size() >= k ? k : backup.size());
                 checkSCCwithTemporal(list);
                 list.clear();
             }
             backup = null;
 
             // output trace
-            System.out.println("[Swan] Ouput a new trace!");
+            Vector<SwanEvent> newTrace = topologicalSorting();
+
+            String filename = "new." + ++idx + ".trace.gz";
+            try {
+                ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filename));
+                oos.writeObject(newTrace);
+                oos.close();
+                System.out.println("[Swan] Ouput a new trace! ==> " + filename);
+                newTrace = null;
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.exit(1);
+            } finally {
+                System.gc();
+                System.gc();
+                System.gc();
+            }
         }
     }
 
+    /**
+     * *****************************************************************
+     */
+    private Vector<SwanEvent> topologicalSorting() {
+        nodeindex.clear();
+        for (int i = 0; i < allEvents.size(); i++) {
+            nodeindex.add(-1); // borrow it for sorting; it is used for SCC originally.
+        }
+
+        Vector<SwanEvent> ret = new Vector<SwanEvent>();
+        LinkedList<SwanEvent> linkedList = new LinkedList<SwanEvent>();
+
+        while (nodeindex.contains(-1)) {
+            int x = nodeindex.indexOf(-1);
+            visit(x, linkedList);
+        }
+        ret.addAll(linkedList);
+        linkedList = null;
+        return ret;
+    }
+
+    private void visit(int n, LinkedList<SwanEvent> ret) {
+        if (nodeindex.get(n) == 0) {
+            throw new RuntimeException("Not a DAG!");
+        }
+
+        if (nodeindex.get(n) == -1) {
+            nodeindex.set(n, 0);
+            Iterator<SwanEvent> nIt = allEvents.get(n).getEdgeIteraror();
+            while (nIt.hasNext()) {
+                SwanEvent to = nIt.next();
+                visit(to.idx, ret);
+            }
+            nodeindex.set(n, 1);
+            ret.addFirst(allEvents.get(n));
+        }
+    }
+
+    /**
+     * *****************************************************************
+     */
     private int checkSCCwithTemporal(List<MAP> list) {
         List<Integer> starts = new ArrayList<Integer>();
         List<MAP> added = new ArrayList<MAP>();
@@ -282,8 +343,8 @@ public class KernelGraph {
             // add cached closed edges
             SwanEvent from1 = p.first();
             SwanEvent to1 = p.second();
-            
-            if(!from1.containsTemporalNext(to1)){
+
+            if (!from1.containsTemporalNext(to1)) {
                 from1.addTemporalNext(to1);
                 starts.add(to1.idx);
                 added.add(p);
@@ -322,17 +383,17 @@ public class KernelGraph {
             PMAP edges = p.getEdgeClosure();
             SwanEvent from1 = edges.first().first();
             SwanEvent to1 = edges.first().second();
-            
+
             SwanEvent from2 = edges.second().first();
             SwanEvent to2 = edges.second().second();
-            
-            if(!from1.containsTemporalNext(to1)){
+
+            if (!from1.containsTemporalNext(to1)) {
                 from1.addTemporalNext(to1);
                 starts.add(to1.idx);
                 added.add(edges.first());
             }
-            
-            if(!from2.containsTemporalNext(to2)){
+
+            if (!from2.containsTemporalNext(to2)) {
                 from2.addTemporalNext(to2);
                 starts.add(to2.idx);
                 added.add(edges.second());

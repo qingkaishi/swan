@@ -93,7 +93,7 @@ public abstract class MonitorWorker {
 
     public abstract void myExit();
 
-    public int getLockObjectId(Object o) {
+    public synchronized int getLockObjectId(Object o) {
         if (!lockObjectMap.containsKey(o)) {
             lockObjectMap.put(o, -1 - lockObjectMap.size());
         }

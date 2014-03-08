@@ -38,12 +38,14 @@ public class Generator {
 
                 KernelGraph kg = KernelGraph.v(trace);
                 kg.test();
-                
+
                 List<PMAP> pmaps = PMAPSearcher.search(trace, kg);
                 System.out.println("[Swan] There are " + pmaps.size() + " possible atomicity violations to cover!");
+                System.out.println(pmaps);
                 List<PMAP> reduced_pmaps = PMAPSearcher.optimize(pmaps, kg);
                 System.out.println("[Swan] There are ONLY " + reduced_pmaps.size() + " possible atomicity violations AFTER OPTIMIZATIONS!");
-            
+                System.out.println(reduced_pmaps);
+
                 kg.generateTestSchedules(reduced_pmaps);
             } catch (Exception e) {
                 e.printStackTrace();

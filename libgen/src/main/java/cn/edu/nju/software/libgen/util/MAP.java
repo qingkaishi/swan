@@ -28,6 +28,12 @@ class MAP {
         }
     }
 
+    @Override
+    public String toString() {
+        return first().accessType.name() + "(" + first().idx + ")" + first().sharedMemId + "-->"
+                + second().accessType.name() + "(" + second().idx + ")" + second().sharedMemId;
+    }
+
     boolean sameSharedMemWith(MAP mj) {
         int thisSvId = pair.get(0).sharedMemId;
         int thatSvId = mj.pair.get(0).sharedMemId;
@@ -55,6 +61,12 @@ class MAP {
             Vector<Integer> lset2 = to.lockIds;
 
             lset1.retainAll(lset2);
+
+            if (lset1.isEmpty()) {
+                closure = this;
+                return closure;
+            }
+
             SwanEvent n = from;
             while (n != null) {
                 SwanEvent tmp = n.sameThreadNext;
@@ -108,18 +120,17 @@ class MAP {
     }
 
     boolean implies(MAP m) {
-        MAP thisClosure = this.closure;
-        MAP mClosure = m.closure;
-        
-        SwanEvent thisFrom = thisClosure.first();
-        SwanEvent thisTo = thisClosure.second();
-        
-        SwanEvent mFrom = mClosure.first();
-        SwanEvent mTo = mClosure.second();
+        // do not use closure to implement implies relation
+        // it is only used for Scc test.
+        SwanEvent thisFrom = this.first();
+        SwanEvent thisTo = this.second();
+
+        SwanEvent mFrom = m.first();
+        SwanEvent mTo = m.second();
 
         if (mFrom.threadId == thisFrom.threadId
                 && mTo.threadId == thisTo.threadId) {
-            return mFrom.idx <= thisFrom.idx 
+            return mFrom.idx <= thisFrom.idx
                     && mTo.idx >= thisTo.idx;
         }
         return false;

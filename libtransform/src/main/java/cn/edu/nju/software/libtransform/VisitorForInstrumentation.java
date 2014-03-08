@@ -401,14 +401,7 @@ public class VisitorForInstrumentation extends Visitor {
 
     private Value getThisRefLocal(SootMethod sm, Chain units) {
         if (!sm.isStatic()) {
-            for (Stmt s = (Stmt) units.getFirst(); s != null; s = (Stmt) units.getSuccOf(s)) {
-                if (s instanceof IdentityStmt) {
-                    Value v = ((IdentityStmt) s).getRightOp();
-                    if (v instanceof ThisRef) {
-                        return ((IdentityStmt) s).getLeftOp();
-                    }
-                }
-            }
+            return sm.retrieveActiveBody().getThisLocal();
         }
 
         throw new RuntimeException("Cannot find the local for ThisRef in " + sm.getName());

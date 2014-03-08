@@ -34,6 +34,7 @@ public class PMAPSearcher {
             }
         }
 
+        //System.out.println(maps);
         List<PMAP> pmaps = new ArrayList<PMAP>();
         int startIdx = 0;
         for (int i = 0; i < maps.size(); i++) {
@@ -68,8 +69,10 @@ public class PMAPSearcher {
 
                 // grouping pmaps for efficiency
                 if (pmaps.size() - startIdx == k) {
+                    //System.out.println(pmaps);
                     kg.checkSCCwith(pmaps.subList(startIdx, pmaps.size()));
                     startIdx = pmaps.size();
+                    //System.out.println(pmaps);
                 }
             }
         }
