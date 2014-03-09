@@ -18,9 +18,9 @@ public class URLParse {
 	private void replaceVal(String key, String newVal) {
 		int keyPos = url.indexOf(key);
 		int valPos = url.indexOf("=", keyPos) + 1;
-
+		int ampPos;
 		synchronized(this){
-		int ampPos = url.indexOf("&", keyPos);
+		ampPos = url.indexOf("&", keyPos);
 		if (ampPos < 0)
 			ampPos = url.length();
 		}
