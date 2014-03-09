@@ -43,4 +43,8 @@ public class Patch {
     public boolean contains(int i) {
         return patchedlines.contains(i);
     }
+    
+    public boolean isEmpty(){
+        return patchedlines.isEmpty();
+    }
 }

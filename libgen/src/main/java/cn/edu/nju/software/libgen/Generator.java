@@ -45,6 +45,13 @@ public class Generator {
                 List<PMAP> reduced_pmaps = PMAPSearcher.optimize(pmaps, kg);
                 System.out.println("[Swan] There are ONLY " + reduced_pmaps.size() + " possible atomicity violations AFTER OPTIMIZATIONS!");
                 System.out.println(reduced_pmaps);
+                
+                if(reduced_pmaps.size() == 0) {
+                    System.out.println("[Swan] NO possible atomicity violations to cover!");
+                    System.out.println("[Swan] There are two possible reasons:");
+                    System.out.println("[Swan]     [1] The input trace is not a buggy trace.");
+                    System.out.println("[Swan]     [2] You have fixed it sufficiently.");
+                }
 
                 kg.generateTestSchedules(reduced_pmaps);
             } catch (Exception e) {

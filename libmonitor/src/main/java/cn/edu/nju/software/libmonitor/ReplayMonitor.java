@@ -7,7 +7,6 @@ package cn.edu.nju.software.libmonitor;
 
 import cn.edu.nju.software.libevent.SwanEvent;
 import java.util.ArrayList;
-import java.util.Vector;
 import java.util.concurrent.locks.Condition;
 
 /**

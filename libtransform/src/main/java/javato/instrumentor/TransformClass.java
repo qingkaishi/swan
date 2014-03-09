@@ -1,6 +1,7 @@
 package javato.instrumentor;
 
 import cn.edu.nju.software.libtransform.TransformTask;
+import cn.edu.nju.software.libtransform.patch.Patch;
 import org.objectweb.asm.ClassReader;
 import soot.Scene;
 
@@ -175,7 +176,12 @@ public class TransformClass {
         }
 
         String suffix = mainClass.replace('.', '_');
-        String path = "./transformed_version_" + suffix + "/";
+        String path = "./transformed_version_";
+        if (Patch.v().isEmpty()) {
+            path = path + suffix + "/";
+        } else {
+            path = path + "with_patches_" + suffix + "/";
+        }
         String[] args_soot = {"-cp", ".", "-pp", "-validate", mainClass, "-d",
             path, "-f", "class", "-x", "jrockit.", "-x", "edu.", "-x",
             "com.", "-x", "checkers.", "-x", "org.xmlpull.", "-x",

@@ -277,6 +277,11 @@ public class KernelGraph {
             // output trace
             Vector<SwanEvent> newTrace = topologicalSorting();
 
+            for (SwanEvent se : newTrace) {
+                System.out.print(se.accessType.name() + "(" + se.idx + ")" + se.sharedMemId + "--> ");
+            }
+            System.out.println();
+
             String filename = "new." + ++idx + ".trace.gz";
             try {
                 ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filename));

@@ -23,8 +23,8 @@ public class URLParse {
 		int ampPos = url.indexOf("&", keyPos);
 		if (ampPos < 0)
 			ampPos = url.length();
-		url = url.substring(0, valPos) + newVal + url.substring(ampPos);
 		}
+		url = url.substring(0, valPos) + newVal + url.substring(ampPos);
 	}
 
 	private synchronized String getVal(String key) {
