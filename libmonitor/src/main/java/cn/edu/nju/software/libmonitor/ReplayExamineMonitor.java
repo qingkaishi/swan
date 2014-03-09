@@ -338,14 +338,14 @@ public class ReplayExamineMonitor extends MonitorWorker {
     public void myExit() {
     }
 
-    private final Map<Integer, Integer> blocked = new ConcurrentHashMap<Integer, Integer>();
-    private int specialThreadId = -1;
+    //private final Map<Integer, Integer> blocked = new ConcurrentHashMap<Integer, Integer>();
+    //private int specialThreadId = -1;
 
     private void matchUsingCondition(Condition c, SwanEvent se) {
         int type = match(se, trace.peek());
         while (!trace.isEmpty() && (type > 0)
-                && se.threadId != specialThreadId) {
-            if (type > 0) {
+                /*&& se.threadId != specialThreadId*/) {
+            /*if (type > 0) {
                 blocked.put(se.threadId, type);
                 Set<Integer> keysets = blocked.keySet();
                 
@@ -371,7 +371,7 @@ public class ReplayExamineMonitor extends MonitorWorker {
                     }
                     specialThreadId = cand.getKey();
                 }
-            }
+            }*/
 
             try {
                 c.awaitNanos(100000000); //100ms
@@ -381,10 +381,10 @@ public class ReplayExamineMonitor extends MonitorWorker {
             type = match(se, trace.peek());
         }
 
-        blocked.remove(se.threadId);
+        /*blocked.remove(se.threadId);
         if (se.threadId == specialThreadId) {
             specialThreadId = -1;
-        }
+        }*/
 
         if (type == 0) {
             trace.poll();
@@ -394,8 +394,8 @@ public class ReplayExamineMonitor extends MonitorWorker {
     private void matchUsingObject(Object c, SwanEvent se) {
         int type = match(se, trace.peek());
         while (!trace.isEmpty() && (type > 0)
-                && se.threadId != specialThreadId) {
-            if (type > 0) {
+                /*&& se.threadId != specialThreadId*/) {
+            /*if (type > 0) {
                 blocked.put(se.threadId, type);
                 Set<Integer> keysets = blocked.keySet();
 
@@ -421,7 +421,7 @@ public class ReplayExamineMonitor extends MonitorWorker {
                     }
                     specialThreadId = cand.getKey();
                 }
-            }
+            }*/
 
             try {
                 c.wait(100); //100ms
@@ -431,10 +431,10 @@ public class ReplayExamineMonitor extends MonitorWorker {
             type = match(se, trace.peek());
         }
 
-        blocked.remove(se.threadId);
+        /*blocked.remove(se.threadId);
         if (se.threadId == specialThreadId) {
             specialThreadId = -1;
-        }
+        }*/
 
         if (type == 0) {
             trace.poll();
@@ -444,8 +444,8 @@ public class ReplayExamineMonitor extends MonitorWorker {
     private void matchUsingSleep(SwanEvent se) {
         int type = match(se, trace.peek());
         while (!trace.isEmpty() && (type > 0)
-                && se.threadId != specialThreadId) {
-            if (type > 0) {
+                /*&& se.threadId != specialThreadId*/) {
+            /*if (type > 0) {
                 blocked.put(se.threadId, type);
                 Set<Integer> keysets = blocked.keySet();
 
@@ -471,7 +471,7 @@ public class ReplayExamineMonitor extends MonitorWorker {
                     }
                     specialThreadId = cand.getKey();
                 }
-            }
+            }*/
 
             try {
                 Thread.sleep(100); //100ms
@@ -481,10 +481,10 @@ public class ReplayExamineMonitor extends MonitorWorker {
             type = match(se, trace.peek());
         }
 
-        blocked.remove(se.threadId);
+        /*blocked.remove(se.threadId);
         if (se.threadId == specialThreadId) {
             specialThreadId = -1;
-        }
+        }*/
 
         if (type == 0) {
             trace.poll();
@@ -521,8 +521,11 @@ public class ReplayExamineMonitor extends MonitorWorker {
 
             if (mayMatch) {
                 // rule 3.b some one may match it
-                trace.poll();
-                return distance;
+                if(se1.threadId == se2.threadId){
+                    trace.poll();
+                    return distance + 2;
+                }
+                return 1;
             } else {
                 // rule 3.a no one can match it
                 return -1;
