@@ -47,6 +47,12 @@ statement from the critical section.
 The variable _handler_ is an object field. Therefore, it is always different 
 for different objects, which will make the global object _handlerMap_ broken.
 
+Environment
+-------
+JDK 1.6.0
+Soot 2.4.0
+Ubuntu 12.04+
+
 Usage
 -------
 See the example in demo/READM.md.
