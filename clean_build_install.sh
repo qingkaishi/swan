@@ -47,9 +47,14 @@ cd $selfdir/swan
 mvn assembly:assembly
 cd $cur
 
+cd $selfdir/axis
+mvn assembly:assembly
+cd $cur
+
 
 # install
 test -d $selfdir/bin || mkdir $selfdir/bin
 
 cp $selfdir/swan/target/swan-1.0-SNAPSHOT-jar-with-dependencies.jar $selfdir/bin/swan.jar
+cp $selfdir/axis/target/axis-1.0-SNAPSHOT-jar-with-dependencies.jar $selfdir/bin/axis.jar
 cp $selfdir/swan/target/swan-1.0-SNAPSHOT-jar-with-dependencies.jar $selfdir/demo/swan.jar
