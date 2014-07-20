@@ -7,7 +7,12 @@ import java.io.ObjectInputStream;
 import java.util.Vector;
 
 /**
- * Hello world!
+ * Axis: Automatically Fixing Atomicity Violations Through Solving Control
+ * Constraints
+ *
+ * Liu, Peng and Zhang, Charles
+ *
+ * ICSE 2012
  *
  */
 public class Axis {
