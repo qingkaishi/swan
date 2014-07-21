@@ -1,3 +1,9 @@
+/*
+ * 
+ * Developed by Qingkai Shi
+ * Copy Right by the State Key Lab for Novel Software Tech., Nanjing University.  
+ */
+
 package cn.edu.nju.software.axis;
 
 import cn.edu.nju.software.libevent.SwanEvent;
@@ -20,7 +26,7 @@ import java.util.Vector;
 public class Axis {
 
     /**
-     * usage
+     * usage:
      *
      * axis trace_file class:line,class:line,...;class:line,class:line...
      *

@@ -1,7 +1,7 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * 
+ * Developed by Qingkai Shi
+ * Copy Right by the State Key Lab for Novel Software Tech., Nanjing University.  
  */
 package cn.edu.nju.software.libtransform.patch;
 
