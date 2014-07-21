@@ -24,15 +24,17 @@ public class SwanEvent implements Serializable {
     }
 
     public int threadId, sharedMemId, lineNo;
+    public String clsname;
     public AccessType accessType;
     public Vector<Integer> lockIds = new Vector<Integer>();
     public boolean patchedEvent = false;
 
-    public SwanEvent(int threadId, int sharedMemId, List<Integer> curlockIds, AccessType accessType, int lineNo) {
+    public SwanEvent(int threadId, int sharedMemId, List<Integer> curlockIds, AccessType accessType, String clsname, int lineNo) {
         this.threadId = threadId;
         this.sharedMemId = sharedMemId;
         this.accessType = accessType;
         this.lineNo = lineNo;
+        this.clsname = clsname;
         if (curlockIds != null) {
             this.lockIds.addAll(curlockIds);
         }

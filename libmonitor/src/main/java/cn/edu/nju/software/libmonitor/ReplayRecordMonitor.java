@@ -28,11 +28,11 @@ public class ReplayRecordMonitor extends MonitorWorker {
     }
 
     @Override
-    public void myBeforeLock(Object o, int svno, int lineno, int debug) {
+    public void myBeforeLock(Object o, int svno, int lineno, String clsname, int debug) {
     }
 
     @Override
-    public void myAfterLock(Object o, int svno, int lineno, int debug) {
+    public void myAfterLock(Object o, int svno, int lineno, String clsname, int debug) {
         if (!start) {
             return;
         }
@@ -43,7 +43,7 @@ public class ReplayRecordMonitor extends MonitorWorker {
         List<Integer> curLockIds = lockObjects.get(tid);
         curLockIds.add(lockId);
         SwanEvent se = new SwanEvent(tid,
-                lockId, curLockIds, SwanEvent.AccessType.ACQUIRE, lineno);
+                lockId, curLockIds, SwanEvent.AccessType.ACQUIRE, clsname, lineno);
         if (debug < 0) {
         } else {
             matchUsingObject(o, se);
@@ -56,7 +56,7 @@ public class ReplayRecordMonitor extends MonitorWorker {
     }
 
     @Override
-    public void myBeforeUnlock(Object o, int svno, int lineno, int debug) {
+    public void myBeforeUnlock(Object o, int svno, int lineno, String clsname, int debug) {
         if (!start) {
             return;
         }
@@ -67,7 +67,7 @@ public class ReplayRecordMonitor extends MonitorWorker {
         List<Integer> curLockIds = lockObjects.get(tid);
 
         SwanEvent se = new SwanEvent(tid,
-                lockId, curLockIds, SwanEvent.AccessType.RELEASE, lineno);
+                lockId, curLockIds, SwanEvent.AccessType.RELEASE, clsname, lineno);
         if (debug < 0) {
         } else {
             matchUsingObject(o, se);
@@ -81,11 +81,11 @@ public class ReplayRecordMonitor extends MonitorWorker {
     }
 
     @Override
-    public void myAfterUnlock(Object o, int svno, int lineno, int debug) {
+    public void myAfterUnlock(Object o, int svno, int lineno, String clsname, int debug) {
     }
 
     @Override
-    public void myBeforeWait(Object o, int svno, int lineno, int debug) {
+    public void myBeforeWait(Object o, int svno, int lineno, String clsname, int debug) {
         if (!start) {
             return;
         }
@@ -95,7 +95,7 @@ public class ReplayRecordMonitor extends MonitorWorker {
         Integer lockId = this.getLockObjectId(o);
         List<Integer> curLockIds = lockObjects.get(tid);
         SwanEvent se = new SwanEvent(tid,
-                lockId, curLockIds, SwanEvent.AccessType.WAIT_RELEASE, lineno);
+                lockId, curLockIds, SwanEvent.AccessType.WAIT_RELEASE, clsname, lineno);
         matchUsingObject(o, se);
 
         newTrace.add(se);
@@ -103,7 +103,7 @@ public class ReplayRecordMonitor extends MonitorWorker {
     }
 
     @Override
-    public void myAfterWait(Object o, int svno, int lineno, int debug) {
+    public void myAfterWait(Object o, int svno, int lineno, String clsname, int debug) {
         if (!start) {
             return;
         }
@@ -114,14 +114,14 @@ public class ReplayRecordMonitor extends MonitorWorker {
         List<Integer> curLockIds = lockObjects.get(tid);
         curLockIds.add(lockId);
         SwanEvent se = new SwanEvent(tid,
-                lockId, curLockIds, SwanEvent.AccessType.WAIT_ACQUIRE, lineno);
+                lockId, curLockIds, SwanEvent.AccessType.WAIT_ACQUIRE, clsname, lineno);
         matchUsingObject(o, se);
 
         newTrace.add(se);
     }
 
     @Override
-    public void myBeforeNotify(Object o, int svno, int lineno, int debug) {
+    public void myBeforeNotify(Object o, int svno, int lineno, String clsname, int debug) {
         if (!start) {
             return;
         }
@@ -130,17 +130,17 @@ public class ReplayRecordMonitor extends MonitorWorker {
         int tid = threads.indexOf(Thread.currentThread());
         List<Integer> curLockIds = lockObjects.get(tid);
         SwanEvent se = new SwanEvent(tid,
-                this.getLockObjectId(o), curLockIds, SwanEvent.AccessType.NOTIFYALL, lineno);
+                this.getLockObjectId(o), curLockIds, SwanEvent.AccessType.NOTIFYALL, clsname, lineno);
         matchUsingObject(o, se);
         newTrace.add(se);
     }
 
     @Override
-    public void myAfterNotify(Object o, int svno, int lineno, int debug) {
+    public void myAfterNotify(Object o, int svno, int lineno, String clsname, int debug) {
     }
 
     @Override
-    public void myBeforeNotifyAll(Object o, int svno, int lineno, int debug) {
+    public void myBeforeNotifyAll(Object o, int svno, int lineno, String clsname, int debug) {
         if (!start) {
             return;
         }
@@ -149,17 +149,17 @@ public class ReplayRecordMonitor extends MonitorWorker {
         int tid = threads.indexOf(Thread.currentThread());
         List<Integer> curLockIds = lockObjects.get(tid);
         SwanEvent se = new SwanEvent(tid,
-                this.getLockObjectId(o), curLockIds, SwanEvent.AccessType.NOTIFYALL, lineno);
+                this.getLockObjectId(o), curLockIds, SwanEvent.AccessType.NOTIFYALL, clsname, lineno);
         matchUsingObject(o, se);
         newTrace.add(se);
     }
 
     @Override
-    public void myAfterNotifyAll(Object o, int svno, int lineno, int debug) {
+    public void myAfterNotifyAll(Object o, int svno, int lineno, String clsname, int debug) {
     }
 
     @Override
-    public void myBeforeThreadStart(Object o, int svno, int lineno, int debug) {
+    public void myBeforeThreadStart(Object o, int svno, int lineno, String clsname, int debug) {
         locks.get(svno).lock();
         threads.add((Thread) o);
         lockObjects.add(new ArrayList<Integer>());
@@ -171,13 +171,13 @@ public class ReplayRecordMonitor extends MonitorWorker {
         List<Integer> curLockIds = lockObjects.get(tid);
         int startTid = threads.indexOf(o);
         SwanEvent se = new SwanEvent(tid,
-                startTid, curLockIds, SwanEvent.AccessType.FORK, lineno);
+                startTid, curLockIds, SwanEvent.AccessType.FORK, clsname, lineno);
         matchUsingCondition(conditions.get(svno), se);
         newTrace.add(se);
     }
 
     @Override
-    public void myAfterThreadStart(Object o, int svno, int lineno, int debug) {
+    public void myAfterThreadStart(Object o, int svno, int lineno, String clsname, int debug) {
         if (!start) {
             return;
         }
@@ -185,7 +185,7 @@ public class ReplayRecordMonitor extends MonitorWorker {
     }
 
     @Override
-    public void myBeforeThreadJoin(Object o, int svno, int lineno, int debug) {
+    public void myBeforeThreadJoin(Object o, int svno, int lineno, String clsname, int debug) {
         if (!start) {
             return;
         }
@@ -195,18 +195,18 @@ public class ReplayRecordMonitor extends MonitorWorker {
         List<Integer> curLockIds = lockObjects.get(tid);
         int joinTid = threads.indexOf(o);
         SwanEvent se = new SwanEvent(tid,
-                joinTid, curLockIds, SwanEvent.AccessType.JOIN, lineno);
+                joinTid, curLockIds, SwanEvent.AccessType.JOIN, clsname, lineno);
 
         matchUsingSleep(se);
         newTrace.add(se);
     }
 
     @Override
-    public void myAfterThreadJoin(Object o, int svno, int lineno, int debug) {
+    public void myAfterThreadJoin(Object o, int svno, int lineno, String clsname, int debug) {
     }
 
     @Override
-    public void myBeforeSynchronizedInsInvoke(Object o, int svno, int lineno, int debug) {
+    public void myBeforeSynchronizedInsInvoke(Object o, int svno, int lineno, String clsname, int debug) {
         if (!start) {
             return;
         }
@@ -220,7 +220,7 @@ public class ReplayRecordMonitor extends MonitorWorker {
         curLockIds.add(lockId);
 
         SwanEvent se = new SwanEvent(tid,
-                lockId, curLockIds, SwanEvent.AccessType.ACQUIRE, lineno);
+                lockId, curLockIds, SwanEvent.AccessType.ACQUIRE, clsname, lineno);
         if (debug < 0) {
         } else {
             matchUsingObject(o, se);
@@ -233,7 +233,7 @@ public class ReplayRecordMonitor extends MonitorWorker {
     }
 
     @Override
-    public void myAfterSynchronizedInsInvoke(Object o, int svno, int lineno, int debug) {
+    public void myAfterSynchronizedInsInvoke(Object o, int svno, int lineno, String clsname, int debug) {
         if (!start) {
             return;
         }
@@ -243,7 +243,7 @@ public class ReplayRecordMonitor extends MonitorWorker {
         Integer lockId = this.getLockObjectId(o);
         List<Integer> curLockIds = lockObjects.get(tid);
         SwanEvent se = new SwanEvent(tid,
-                lockId, curLockIds, SwanEvent.AccessType.RELEASE, lineno);
+                lockId, curLockIds, SwanEvent.AccessType.RELEASE, clsname, lineno);
         if (debug < 0) {
         } else {
             matchUsingObject(o, se);
@@ -257,7 +257,7 @@ public class ReplayRecordMonitor extends MonitorWorker {
     }
 
     @Override
-    public void myBeforeSynchronizedStaticInvoke(Object o, int svno, int lineno, int debug) {
+    public void myBeforeSynchronizedStaticInvoke(Object o, int svno, int lineno, String clsname, int debug) {
         if (!start) {
             return;
         }
@@ -274,7 +274,7 @@ public class ReplayRecordMonitor extends MonitorWorker {
                 curLockIds.add(lockId);
 
                 SwanEvent se = new SwanEvent(tid,
-                        lockId, curLockIds, SwanEvent.AccessType.ACQUIRE, lineno);
+                        lockId, curLockIds, SwanEvent.AccessType.ACQUIRE, clsname, lineno);
                 if (debug < 0) {
                 } else {
                     matchUsingObject(c, se);
@@ -294,7 +294,7 @@ public class ReplayRecordMonitor extends MonitorWorker {
     }
 
     @Override
-    public void myAfterSynchronizedStaticInvoke(Object o, int svno, int lineno, int debug) {
+    public void myAfterSynchronizedStaticInvoke(Object o, int svno, int lineno, String clsname, int debug) {
         if (!start) {
             return;
         }
@@ -307,7 +307,7 @@ public class ReplayRecordMonitor extends MonitorWorker {
                 Integer lockId = this.getLockObjectId(c);
                 List<Integer> curLockIds = lockObjects.get(tid);
                 SwanEvent se = new SwanEvent(tid,
-                        lockId, curLockIds, SwanEvent.AccessType.RELEASE, lineno);
+                        lockId, curLockIds, SwanEvent.AccessType.RELEASE, clsname, lineno);
 
                 if (debug < 0) {
                 } else {
@@ -329,7 +329,7 @@ public class ReplayRecordMonitor extends MonitorWorker {
     }
 
     @Override
-    public void myBeforeRead(Object o, int svno, int lineno, int debug) {
+    public void myBeforeRead(Object o, int svno, int lineno, String clsname, int debug) {
         if (!start) {
             return;
         }
@@ -341,14 +341,14 @@ public class ReplayRecordMonitor extends MonitorWorker {
         int tid = threads.indexOf(Thread.currentThread());
         List<Integer> curLockIds = lockObjects.get(tid);
         SwanEvent se = new SwanEvent(tid,
-                svno, curLockIds, SwanEvent.AccessType.READ, lineno);
+                svno, curLockIds, SwanEvent.AccessType.READ, clsname, lineno);
 
         matchUsingCondition(conditions.get(svno), se);
         newTrace.add(se);
     }
 
     @Override
-    public void myAfterRead(Object o, int svno, int lineno, int debug) {
+    public void myAfterRead(Object o, int svno, int lineno, String clsname, int debug) {
         if (!start) {
             return;
         }
@@ -356,7 +356,7 @@ public class ReplayRecordMonitor extends MonitorWorker {
     }
 
     @Override
-    public void myBeforeWrite(Object o, int svno, int lineno, int debug) {
+    public void myBeforeWrite(Object o, int svno, int lineno, String clsname, int debug) {
         if (!start) {
             return;
         }
@@ -368,14 +368,14 @@ public class ReplayRecordMonitor extends MonitorWorker {
         int tid = threads.indexOf(Thread.currentThread());
         List<Integer> curLockIds = lockObjects.get(tid);
         SwanEvent se = new SwanEvent(tid,
-                svno, curLockIds, SwanEvent.AccessType.WRITE, lineno);
+                svno, curLockIds, SwanEvent.AccessType.WRITE, clsname, lineno);
 
         matchUsingCondition(conditions.get(svno), se);
         newTrace.add(se);
     }
 
     @Override
-    public void myAfterWrite(Object o, int svno, int lineno, int debug) {
+    public void myAfterWrite(Object o, int svno, int lineno, String clsname, int debug) {
         if (!start) {
             return;
         }

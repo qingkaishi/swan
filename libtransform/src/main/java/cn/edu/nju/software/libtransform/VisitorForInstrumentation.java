@@ -78,10 +78,11 @@ public class VisitorForInstrumentation extends Visitor {
         args.addLast(enterMonitorStmt.getOp()); // sv obj.
         args.addLast(IntConstant.v(st.getSize())); // sv no.
         args.addLast(IntConstant.v(linenumber));
+        args.addLast(StringConstant.v(sm.getDeclaringClass().getName()));
         args.addLast(IntConstant.v(xxx)); // debug idx
 
-        SootMethodRef mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeLock(java.lang.Object,int,int,int)>").makeRef();
-        SootMethodRef mrafter = Scene.v().getMethod("<" + observerClass + ": void myAfterLock(java.lang.Object,int,int,int)>").makeRef();
+        SootMethodRef mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeLock(java.lang.Object,int,int,java.lang.String,int)>").makeRef();
+        SootMethodRef mrafter = Scene.v().getMethod("<" + observerClass + ": void myAfterLock(java.lang.Object,int,int,java.lang.String,int)>").makeRef();
 
         units.insertBefore(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrbefore, args)), enterMonitorStmt);
         units.insertAfter(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrafter, args)), enterMonitorStmt);
@@ -104,10 +105,11 @@ public class VisitorForInstrumentation extends Visitor {
         args.addLast(exitMonitorStmt.getOp()); // sv obj.
         args.addLast(IntConstant.v(st.getSize())); // sv no.
         args.addLast(IntConstant.v(linenumber));
+        args.addLast(StringConstant.v(sm.getDeclaringClass().getName()));
         args.addLast(IntConstant.v(xxx)); // debug idx
 
-        SootMethodRef mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeUnlock(java.lang.Object,int,int,int)>").makeRef();
-        SootMethodRef mrafter = Scene.v().getMethod("<" + observerClass + ": void myAfterUnlock(java.lang.Object,int,int,int)>").makeRef();
+        SootMethodRef mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeUnlock(java.lang.Object,int,int,java.lang.String,int)>").makeRef();
+        SootMethodRef mrafter = Scene.v().getMethod("<" + observerClass + ": void myAfterUnlock(java.lang.Object,int,int,java.lang.String,int)>").makeRef();
 
         units.insertBefore(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrbefore, args)), exitMonitorStmt);
         units.insertAfter(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrafter, args)), exitMonitorStmt);
@@ -129,10 +131,11 @@ public class VisitorForInstrumentation extends Visitor {
             args.addLast(base); // sv obj.
             args.addLast(IntConstant.v(st.getSize())); // sv no.
             args.addLast(IntConstant.v(Visitor.getLineNum(s))); //line no.
+            args.addLast(StringConstant.v(sm.getDeclaringClass().getName()));
             args.addLast(IntConstant.v(debug_idx++)); // debug idx
 
-            SootMethodRef mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeWait(java.lang.Object,int,int,int)>").makeRef();
-            SootMethodRef mrafter = Scene.v().getMethod("<" + observerClass + ": void myAfterWait(java.lang.Object,int,int,int)>").makeRef();
+            SootMethodRef mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeWait(java.lang.Object,int,int,java.lang.String,int)>").makeRef();
+            SootMethodRef mrafter = Scene.v().getMethod("<" + observerClass + ": void myAfterWait(java.lang.Object,int,int,java.lang.String,int)>").makeRef();
 
             units.insertBefore(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrbefore, args)), s);
             units.insertAfter(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrafter, args)), s);
@@ -144,10 +147,11 @@ public class VisitorForInstrumentation extends Visitor {
             args.addLast(base); // sv obj.
             args.addLast(IntConstant.v(st.getSize())); // sv no.
             args.addLast(IntConstant.v(Visitor.getLineNum(s))); //line no.
+            args.addLast(StringConstant.v(sm.getDeclaringClass().getName()));
             args.addLast(IntConstant.v(debug_idx++)); // debug idx
 
-            SootMethodRef mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeNotify(java.lang.Object,int,int,int)>").makeRef();
-            SootMethodRef mrafter = Scene.v().getMethod("<" + observerClass + ": void myAfterNotify(java.lang.Object,int,int,int)>").makeRef();
+            SootMethodRef mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeNotify(java.lang.Object,int,int,java.lang.String,int)>").makeRef();
+            SootMethodRef mrafter = Scene.v().getMethod("<" + observerClass + ": void myAfterNotify(java.lang.Object,int,int,java.lang.String,int)>").makeRef();
 
             units.insertBefore(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrbefore, args)), s);
             units.insertAfter(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrafter, args)), s);
@@ -159,10 +163,11 @@ public class VisitorForInstrumentation extends Visitor {
             args.addLast(base); // sv obj.
             args.addLast(IntConstant.v(st.getSize())); // sv no.
             args.addLast(IntConstant.v(Visitor.getLineNum(s))); //line no.
+            args.addLast(StringConstant.v(sm.getDeclaringClass().getName()));
             args.addLast(IntConstant.v(debug_idx++)); // debug idx
 
-            SootMethodRef mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeNotifyAll(java.lang.Object,int,int,int)>").makeRef();
-            SootMethodRef mrafter = Scene.v().getMethod("<" + observerClass + ": void myAfterNotifyAll(java.lang.Object,int,int,int)>").makeRef();
+            SootMethodRef mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeNotifyAll(java.lang.Object,int,int,java.lang.String,int)>").makeRef();
+            SootMethodRef mrafter = Scene.v().getMethod("<" + observerClass + ": void myAfterNotifyAll(java.lang.Object,int,int,java.lang.String,int)>").makeRef();
 
             units.insertBefore(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrbefore, args)), s);
             units.insertAfter(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrafter, args)), s);
@@ -174,10 +179,11 @@ public class VisitorForInstrumentation extends Visitor {
             args.addLast(base); // sv obj.
             args.addLast(IntConstant.v(st.getSize() + 1)); // sv no.
             args.addLast(IntConstant.v(Visitor.getLineNum(s))); //line no.
+            args.addLast(StringConstant.v(sm.getDeclaringClass().getName()));
             args.addLast(IntConstant.v(debug_idx++)); // debug idx
 
-            SootMethodRef mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeThreadStart(java.lang.Object,int,int,int)>").makeRef();
-            SootMethodRef mrafter = Scene.v().getMethod("<" + observerClass + ": void myAfterThreadStart(java.lang.Object,int,int,int)>").makeRef();
+            SootMethodRef mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeThreadStart(java.lang.Object,int,int,java.lang.String,int)>").makeRef();
+            SootMethodRef mrafter = Scene.v().getMethod("<" + observerClass + ": void myAfterThreadStart(java.lang.Object,int,int,java.lang.String,int)>").makeRef();
 
             units.insertBefore(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrbefore, args)), s);
             units.insertAfter(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrafter, args)), s);
@@ -191,10 +197,11 @@ public class VisitorForInstrumentation extends Visitor {
             args.addLast(base); // sv obj.
             args.addLast(IntConstant.v(st.getSize() + 1)); // sv no.
             args.addLast(IntConstant.v(Visitor.getLineNum(s))); //line no.
+            args.addLast(StringConstant.v(sm.getDeclaringClass().getName()));
             args.addLast(IntConstant.v(debug_idx++)); // debug idx
 
-            SootMethodRef mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeThreadJoin(java.lang.Object,int,int,int)>").makeRef();
-            SootMethodRef mrafter = Scene.v().getMethod("<" + observerClass + ": void myAfterThreadJoin(java.lang.Object,int,int,int)>").makeRef();
+            SootMethodRef mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeThreadJoin(java.lang.Object,int,int,java.lang.String,int)>").makeRef();
+            SootMethodRef mrafter = Scene.v().getMethod("<" + observerClass + ": void myAfterThreadJoin(java.lang.Object,int,int,java.lang.String,int)>").makeRef();
 
             units.insertBefore(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrbefore, args)), s);
             units.insertAfter(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrafter, args)), s);
@@ -256,17 +263,18 @@ public class VisitorForInstrumentation extends Visitor {
         args.addLast(StringConstant.v(sig)); // sv obj.
         args.addLast(IntConstant.v(svno)); // sv no.
         args.addLast(IntConstant.v(Visitor.getLineNum(s))); // line no.
+        args.addLast(StringConstant.v(sm.getDeclaringClass().getName()));
         args.addLast(IntConstant.v(debug_idx++)); // debug idx
 
         SootMethodRef mrbefore, mrafter;
         if (context == RHSContextImpl.getInstance()) {
             //read
-            mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeRead(java.lang.Object,int,int,int)>").makeRef();
-            mrafter = Scene.v().getMethod("<" + observerClass + ": void myAfterRead(java.lang.Object,int,int,int)>").makeRef();
+            mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeRead(java.lang.Object,int,int,java.lang.String,int)>").makeRef();
+            mrafter = Scene.v().getMethod("<" + observerClass + ": void myAfterRead(java.lang.Object,int,int,java.lang.String,int)>").makeRef();
         } else {
             //write
-            mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeWrite(java.lang.Object,int,int,int)>").makeRef();
-            mrafter = Scene.v().getMethod("<" + observerClass + ": void myAfterWrite(java.lang.Object,int,int,int)>").makeRef();
+            mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeWrite(java.lang.Object,int,int,java.lang.String,int)>").makeRef();
+            mrafter = Scene.v().getMethod("<" + observerClass + ": void myAfterWrite(java.lang.Object,int,int,java.lang.String,int)>").makeRef();
         }
 
         units.insertBefore(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrbefore, args)), s);
@@ -288,17 +296,18 @@ public class VisitorForInstrumentation extends Visitor {
         args.addLast(StringConstant.v(sig)); // sv obj.
         args.addLast(IntConstant.v(svno)); // sv no.
         args.addLast(IntConstant.v(Visitor.getLineNum(s))); // line no.
+        args.addLast(StringConstant.v(sm.getDeclaringClass().getName()));
         args.addLast(IntConstant.v(debug_idx++)); // debug idx
 
         SootMethodRef mrbefore, mrafter;
         if (context == RHSContextImpl.getInstance()) {
             //read
-            mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeRead(java.lang.Object,int,int,int)>").makeRef();
-            mrafter = Scene.v().getMethod("<" + observerClass + ": void myAfterRead(java.lang.Object,int,int,int)>").makeRef();
+            mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeRead(java.lang.Object,int,int,java.lang.String,int)>").makeRef();
+            mrafter = Scene.v().getMethod("<" + observerClass + ": void myAfterRead(java.lang.Object,int,int,java.lang.String,int)>").makeRef();
         } else {
             //write
-            mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeWrite(java.lang.Object,int,int,int)>").makeRef();
-            mrafter = Scene.v().getMethod("<" + observerClass + ": void myAfterWrite(java.lang.Object,int,int,int)>").makeRef();
+            mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeWrite(java.lang.Object,int,int,java.lang.String,int)>").makeRef();
+            mrafter = Scene.v().getMethod("<" + observerClass + ": void myAfterWrite(java.lang.Object,int,int,java.lang.String,int)>").makeRef();
         }
 
         units.insertBefore(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrbefore, args)), s);
@@ -327,15 +336,16 @@ public class VisitorForInstrumentation extends Visitor {
             LinkedList args = new LinkedList(); // arg list
             args.addLast(IntConstant.v(st.getSize())); // sv no.
             args.addLast(IntConstant.v(Visitor.getLineNum(sm))); // line no.
+            args.addLast(StringConstant.v(sm.getDeclaringClass().getName()));
             args.addLast(IntConstant.v(debug_idx++)); // debug idx !!!
 
             SootMethodRef mrbefore = null;
             if (sm.isStatic()) {
                 args.addFirst(StringConstant.v(sm.getDeclaringClass().getName())); // sv obj.
-                mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeSynchronizedStaticInvoke(java.lang.Object,int,int,int)>").makeRef();
+                mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeSynchronizedStaticInvoke(java.lang.Object,int,int,java.lang.String,int)>").makeRef();
             } else {
                 args.addFirst(getThisRefLocal(sm, units));
-                mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeSynchronizedInsInvoke(java.lang.Object,int,int,int)>").makeRef();
+                mrbefore = Scene.v().getMethod("<" + observerClass + ": void myBeforeSynchronizedInsInvoke(java.lang.Object,int,int,java.lang.String,int)>").makeRef();
             }
             units.insertBefore(Jimple.v().newInvokeStmt(Jimple.v().newStaticInvokeExpr(mrbefore, args)), getFirstNonIdentityStmt(sm, units));
         }
@@ -355,14 +365,15 @@ public class VisitorForInstrumentation extends Visitor {
             LinkedList args = new LinkedList(); // arg list        
             args.addLast(IntConstant.v(st.getSize())); // sv no.
             args.addLast(IntConstant.v(linenumber)); // line no.
+            args.addLast(StringConstant.v(sm.getDeclaringClass().getName()));
             args.addLast(IntConstant.v(xxx)); // debug idx !!!
             SootMethodRef mrafter = null;
             if (sm.isStatic()) {
                 args.addFirst(StringConstant.v(sm.getDeclaringClass().getName())); // sv obj.
-                mrafter = Scene.v().getMethod("<" + observerClass + ": void myAfterSynchronizedStaticInvoke(java.lang.Object,int,int,int)>").makeRef();
+                mrafter = Scene.v().getMethod("<" + observerClass + ": void myAfterSynchronizedStaticInvoke(java.lang.Object,int,int,java.lang.String,int)>").makeRef();
             } else {
                 args.addFirst(getThisRefLocal(sm, units)); // sv obj
-                mrafter = Scene.v().getMethod("<" + observerClass + ": void myAfterSynchronizedInsInvoke(java.lang.Object,int,int,int)>").makeRef();
+                mrafter = Scene.v().getMethod("<" + observerClass + ": void myAfterSynchronizedInsInvoke(java.lang.Object,int,int,java.lang.String,int)>").makeRef();
             }
 
             List<Stmt> stmts = getExits(sm, units);
