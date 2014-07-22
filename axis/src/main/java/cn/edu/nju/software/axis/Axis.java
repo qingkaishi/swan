@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.Vector;
 
 /**
@@ -37,6 +38,9 @@ public class Axis {
      * @param args
      */
     public static void main(String[] args) {
+        System.out.println("[ERROR] Axis is not ready to release!!\n");
+        System.exit(0);
+        
         if (args.length < 2) {
             throw new RuntimeException("No trace file or input atomicity violations.");
         }
@@ -99,7 +103,7 @@ public class Axis {
                 }
 
                 boolean find1 = false, find2 = false;
-                List<Integer> relatedThreads = new ArrayList<Integer>();
+                Set<Integer> relatedThreads = new HashSet<Integer>();
                 Iterator<Entry<Integer, Vector<SwanEvent>>> it = threads.entrySet().iterator();
                 while (it.hasNext()) {
                     Entry<Integer, Vector<SwanEvent>> entry = it.next();
@@ -136,6 +140,10 @@ public class Axis {
                     }
                     nsz = relatedThreads.size();
                 } while (sz != nsz);
+                
+                // get all related packages, classes,  methods (from #ln ~ #ln)
+                // get all used methods, and construct petrinet
+                // connect petrinet according to trace order
 
             } catch (Exception e) {
                 e.printStackTrace();
