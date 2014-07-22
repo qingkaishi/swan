@@ -18,6 +18,22 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Vector;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.PosixParser;
+import soot.Scene;
+import soot.SootClass;
+import soot.SootMethod;
+import soot.jimple.IdentityStmt;
+import soot.jimple.Stmt;
+import soot.tagkit.Host;
+import soot.tagkit.LineNumberTag;
+import soot.tagkit.SourceLineNumberTag;
+import soot.tagkit.SourceLnPosTag;
+import soot.util.Chain;
 
 /**
  * Axis: Automatically Fixing Atomicity Violations Through Solving Control
@@ -40,11 +56,44 @@ public class Axis {
     public static void main(String[] args) {
         System.out.println("[ERROR] Axis is not ready to release!!\n");
         System.exit(0);
-        
-        if (args.length < 2) {
-            throw new RuntimeException("No trace file or input atomicity violations.");
-        }
 
+        Options opt = new Options();
+        opt.addOption("b", "bug", true, "the line numbers of the bug, e.g. class:line,class:line,...;class:line,class:line....");
+        opt.addOption("T", "trace", true, "the input trace.");
+        opt.addOption("c", "test-case", true, "your test cases, e.g. \"MainClass args\". Please use \"\" to make it as a whole.");
+        opt.addOption("P", "class-path", true, "the class path of your SUT.");
+        opt.addOption("h", "help", false, "print this information.");
+        String formatstr = "java [java-options] -jar axis.jar [--help] --test-cases <args>] [--bug <bug>] [--class-path <args>]";
+        try {
+            CommandLineParser parser = new PosixParser();
+            CommandLine cl = parser.parse(opt, args);
+            if (cl.hasOption("b") && cl.hasOption("T") && cl.hasOption("c")) {
+                String trace = cl.getOptionValue("T");
+                String bug = cl.getOptionValue("b");
+                String mainclass = cl.getOptionValue("c");
+                String cp = null;
+                if (cl.hasOption("P")) {
+                    cp = cl.getOptionValue("P");
+                }
+
+                startAxis(trace, bug, mainclass, cp);
+            } else {
+                throw new ParseException(formatstr);
+            }
+
+            if (cl.hasOption("h")) {
+                HelpFormatter hf = new HelpFormatter();
+                hf.printHelp(formatstr, "", opt, "");
+                return;
+            }
+        } catch (Exception e) {
+            HelpFormatter hf = new HelpFormatter();
+            hf.printHelp(formatstr, "", opt, "");
+            System.exit(1);
+        }
+    }
+
+    private static void startAxis(String filename, String av, String mainClass, String cp) {
         List<String> cl1 = new ArrayList<String>();
         List<String> cl2 = new ArrayList<String>();
 
@@ -52,7 +101,6 @@ public class Axis {
         List<Integer> ln2 = new ArrayList<Integer>();
 
         try {
-            String av = args[1];
             String[] avp = av.split(";");
             String[] avp1 = avp[0].split(",");
             String[] avp2 = avp[1].split(",");
@@ -78,7 +126,6 @@ public class Axis {
             e.printStackTrace();
         }
 
-        String filename = args[0];
         File f = new File(filename);
         if (f.exists() && !f.isDirectory()) {
             // ...
@@ -140,11 +187,62 @@ public class Axis {
                     }
                     nsz = relatedThreads.size();
                 } while (sz != nsz);
-                
-                // get all related packages, classes,  methods (from #ln ~ #ln)
-                // get all used methods, and construct petrinet
-                // connect petrinet according to trace order
 
+                // get all related classes,  methods (from #ln ~ #ln)
+                List<MethodLineScope> mls = new ArrayList<MethodLineScope>();
+
+                Set<String> relatedClasses = new HashSet<String>();
+                for (int tid : relatedThreads) {
+                    Vector<SwanEvent> track = threads.get(tid);
+                    for (SwanEvent e : track) {
+                        relatedClasses.add(e.clsname);
+                    }
+                }
+
+                String defaultClassPath = Scene.v().defaultClassPath();
+                Scene.v().setSootClassPath(defaultClassPath + File.pathSeparatorChar + cp);
+                Scene.v().loadBasicClasses();
+
+                for (String cls : relatedClasses) {
+                    SootClass sootcls = Scene.v().loadClassAndSupport(cls);
+
+                    List<SootMethod> methods = sootcls.getMethods();
+                    for (SootMethod sm : methods) {
+                        Stmt s = getFirstNonIdentityStmt(sm, sm.retrieveActiveBody().getUnits());
+
+                        int fln = getLineNum(s);
+                        int lln = getLineNum(sm);
+                        mls.add(new MethodLineScope(sm, cls, fln, lln));
+                    }
+                }
+
+                // get all used methods, and construct petrinet
+                for (int i = 0; i < mls.size(); i++) {
+                    MethodLineScope m = mls.get(i);
+
+                    SwanEvent matchedEvent = null;
+                    for (int tid : relatedThreads) {
+                        Vector<SwanEvent> track = threads.get(tid);
+                        for (SwanEvent se : track) {
+                            if (se.lineNo >= m.from && se.lineNo <= m.to) {
+                                matchedEvent = se;
+                                break;
+                            }
+                        }
+                        if (matchedEvent != null) {
+                            break;
+                        }
+                    }
+                    if (matchedEvent == null) {
+                        mls.remove(i--);
+                    } else {
+                        // construct petri net
+
+                        m.construct_petri_net();
+                    }
+                }
+
+                // connect petrinet according to trace order
             } catch (Exception e) {
                 e.printStackTrace();
                 System.exit(1);
@@ -177,5 +275,45 @@ public class Axis {
         }
 
         return containsAll;
+    }
+
+    private static int getLineNum(Host h) {
+        if (h.hasTag("LineNumberTag")) {
+            return ((LineNumberTag) h.getTag("LineNumberTag")).getLineNumber();
+        }
+        if (h.hasTag("SourceLineNumberTag")) {
+            return ((SourceLineNumberTag) h.getTag("SourceLineNumberTag")).getLineNumber();
+        }
+        if (h.hasTag("SourceLnPosTag")) {
+            return ((SourceLnPosTag) h.getTag("SourceLnPosTag")).startLn();
+        }
+        return 0;
+    }
+
+    private static Stmt getFirstNonIdentityStmt(SootMethod sm, Chain units) {
+        Stmt s = (Stmt) units.getFirst();
+        while (s instanceof IdentityStmt) {
+            s = (Stmt) units.getSuccOf(s);
+        }
+        return s;
+    }
+}
+
+class MethodLineScope {
+
+    String classname;
+    SootMethod method;
+    int from;
+    int to;
+
+    public MethodLineScope(SootMethod s, String classname, int f, int t) {
+        this.method = s;
+        this.from = f;
+        this.to = t;
+        this.classname = classname;
+    }
+
+    public void construct_petri_net() {
+        ///@TODO
     }
 }
