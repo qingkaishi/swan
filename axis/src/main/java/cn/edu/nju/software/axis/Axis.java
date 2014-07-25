@@ -6,6 +6,9 @@
 package cn.edu.nju.software.axis;
 
 import cn.edu.nju.software.libevent.SwanEvent;
+import cn.edu.nju.software.petrinet.Node;
+import cn.edu.nju.software.petrinet.Place;
+import cn.edu.nju.software.petrinet.Transition;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
@@ -27,8 +30,16 @@ import org.apache.commons.cli.PosixParser;
 import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
+import soot.jimple.EnterMonitorStmt;
+import soot.jimple.ExitMonitorStmt;
+import soot.jimple.GotoStmt;
 import soot.jimple.IdentityStmt;
+import soot.jimple.IfStmt;
+import soot.jimple.LookupSwitchStmt;
+import soot.jimple.ReturnStmt;
+import soot.jimple.ReturnVoidStmt;
 import soot.jimple.Stmt;
+import soot.jimple.TableSwitchStmt;
 import soot.tagkit.Host;
 import soot.tagkit.LineNumberTag;
 import soot.tagkit.SourceLineNumberTag;
@@ -306,6 +317,10 @@ class MethodLineScope {
     int from;
     int to;
 
+    Map<Stmt, Node> snmap = new HashMap<Stmt, Node>();
+    Node petrinet_root;
+    Node petrinet_last;
+
     public MethodLineScope(SootMethod s, String classname, int f, int t) {
         this.method = s;
         this.from = f;
@@ -315,5 +330,74 @@ class MethodLineScope {
 
     public void construct_petri_net() {
         ///@TODO
+        Chain units = method.retrieveActiveBody().getUnits();
+        for (Object u : units) {
+            Node n = retrieveNode((Stmt) u);
+            if (petrinet_root == null) {
+                petrinet_root = n;
+                ((Place) petrinet_root).setToken();
+            }
+
+            if (((Stmt) u).branches()) {
+                if (u instanceof GotoStmt) {
+                    // one target
+                    Stmt next = (Stmt) units.getSuccOf(u);
+                    addNext((Place) n, next);
+                } else if (u instanceof IfStmt) {
+                    // two targets
+                    Stmt next = (Stmt) units.getSuccOf(u);
+                    addNext((Place) n, next);
+
+                    next = ((IfStmt) u).getTarget();
+                    addNext((Place) n, next);
+                } else if (u instanceof TableSwitchStmt || u instanceof LookupSwitchStmt) {
+                    //several targets
+                    List targets = null;
+                    if (u instanceof TableSwitchStmt) {
+                        targets = ((TableSwitchStmt) u).getTargets();
+                    } else {
+                        targets = ((LookupSwitchStmt) u).getTargets();
+                    }
+                    if (targets == null || targets.isEmpty()) {
+                        Stmt next = (Stmt) units.getSuccOf(u);
+                        addNext((Place) n, next);
+                    } else {
+                        for (Object next : targets) {
+                            addNext((Place) n, (Stmt) next);
+                        }
+                    }
+                } else {
+                    System.err.println("Unknown Branch Stmt: " + u);
+                }
+            } else if (u instanceof EnterMonitorStmt) {
+                
+            } else if (u instanceof ExitMonitorStmt) {
+                
+            } else {
+                // one target
+                Stmt next = (Stmt) units.getSuccOf(u);
+                addNext((Place) n, next);
+            }
+        }
+    }
+
+    Node retrieveNode(Stmt s) {
+        if (snmap.containsKey(s)) {
+            return snmap.get(s);
+        } else {
+            Node n = new Place(s);
+            snmap.put(s, n);
+            return n;
+        }
+    }
+
+    void addNext(Place n, Stmt next) {
+        if (next == null) {
+            return;
+        }
+        Node nextNode = retrieveNode(next);
+        Transition t = new Transition();
+        n.addNext(t);
+        t.addNext(nextNode);
     }
 }

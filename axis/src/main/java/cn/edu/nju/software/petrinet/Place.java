@@ -27,4 +27,8 @@ public class Place extends Node {
     public Object getContent() {
         return content;
     }
+    
+    public void setToken(){
+        token = true;
+    }
 }
