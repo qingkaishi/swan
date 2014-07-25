@@ -13,6 +13,5 @@
     <module>libtransform</module>  
     <module>libmonitor</module>
     <module>libevent</module>
-    <module>axis</module>
   </modules>
 </project>
