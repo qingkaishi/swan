@@ -42,15 +42,17 @@ public class Transformer {
         trans.add(TLAForInstrumentation.v());
 
         // jtp
+        RecursiveVisitor vv = new RecursiveVisitor(null);
+        Visitor pv = null;
         if (cl.hasOption("S")) {
+            pv = new VisitorForStrideInstrumentation(vv);
         } else {
-            RecursiveVisitor vv = new RecursiveVisitor(null);
-            VisitorForInstrumentation pv = new VisitorForInstrumentation(vv);
-            pv.setObserverClass("cn.edu.nju.software.libmonitor.Monitor");
-            TransformerForInstrumentation.v().setVisitor(pv);
-            vv.setNextVisitor(pv);
-            trans.add(TransformerForInstrumentation.v());
+            pv = new VisitorForInstrumentation(vv);
         }
+        pv.setObserverClass("cn.edu.nju.software.libmonitor.Monitor");
+        TransformerForInstrumentation.v().setVisitor(pv);
+        vv.setNextVisitor(pv);
+        trans.add(TransformerForInstrumentation.v());
 
         TransformClass processor = new TransformClass();
         processor.processAllAtOnce(cl.getOptionValue("t"), cl.getOptionValue("P"), trans);
