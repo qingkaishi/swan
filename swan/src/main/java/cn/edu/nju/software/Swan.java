@@ -24,7 +24,7 @@ public class Swan {
 
     public static void main(String[] args) {
         Options opt = new Options();
-
+        
         opt.addOption("t", "transform", true, "transform the program to an instrumented version.");
 
         opt.addOption("r", "record", false, "record an exacution.");
@@ -39,7 +39,10 @@ public class Swan {
         opt.addOption("c", "test-case", true, "your test cases, e.g. \"MainClass args\". Please use \"\" to make it as a whole.");
         opt.addOption("P", "class-path", true, "the class path of your SUT.");
         opt.addOption("h", "help", false, "print this information.");
-        
+
+        // for stride implementation
+        opt.addOption("S", "stride", false, "determine whether use stride transformation");
+
         String formatstr = "java [java-options] -jar swan.jar [--help] [--transform <main-class>] [--generate -T] [[--record] [--replay -T] [--replay-record -T -p] [--replay-examine -T -p] --test-cases <args>] [--class-path <args>]";
 
         try {
@@ -62,9 +65,14 @@ public class Swan {
                 Method main = c.getDeclaredMethod("startTransform", argTypes);
 
                 List<String> mainArgs = new ArrayList<String>();
+                mainArgs.add("-t");
                 mainArgs.add(cl.getOptionValue("t"));
                 if (cl.hasOption("P")) {
+                    mainArgs.add("-P");
                     mainArgs.add(cl.getOptionValue("P"));
+                }
+                if (cl.hasOption("S")) {
+                    mainArgs.add("-S");
                 }
                 String[] argsArray = new String[mainArgs.size()];
                 main.invoke(null, (Object) mainArgs.toArray(argsArray));

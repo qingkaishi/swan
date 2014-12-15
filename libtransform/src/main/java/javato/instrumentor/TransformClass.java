@@ -158,13 +158,12 @@ public class TransformClass {
     }
 
     // HACKED by ise
-    public void processAllAtOnce(String[] args, List<TransformTask> transformers) {
-        String mainClass = args[0];
+    public void processAllAtOnce(String mainClass, String sootCp, List<TransformTask> transformers) {
         setRecordOptions();
 
         Scene.v().setSootClassPath(
                 System.getProperty("sun.boot.class.path") + File.pathSeparator
-                + System.getProperty("java.class.path") + File.pathSeparator + args[1]);
+                + System.getProperty("java.class.path") + File.pathSeparator + sootCp);
         SootClass appclass = Scene.v().loadClassAndSupport(mainClass);
         Scene.v().setMainClass(appclass);
 
