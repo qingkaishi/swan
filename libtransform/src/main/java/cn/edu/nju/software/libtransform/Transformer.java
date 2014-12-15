@@ -26,7 +26,6 @@ public class Transformer {
         // wjtp
         RecursiveVisitor wv = new RecursiveVisitor(null);
         VisitorForTLA v = new VisitorForTLA(wv);
-        TransformerForInstrumentation.v().setVisitor(v);
         wv.setNextVisitor(v);
         TLAForInstrumentation.v().setVisitor(v);
         

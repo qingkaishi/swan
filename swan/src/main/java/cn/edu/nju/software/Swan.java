@@ -39,7 +39,7 @@ public class Swan {
         opt.addOption("c", "test-case", true, "your test cases, e.g. \"MainClass args\". Please use \"\" to make it as a whole.");
         opt.addOption("P", "class-path", true, "the class path of your SUT.");
         opt.addOption("h", "help", false, "print this information.");
-
+        
         String formatstr = "java [java-options] -jar swan.jar [--help] [--transform <main-class>] [--generate -T] [[--record] [--replay -T] [--replay-record -T -p] [--replay-examine -T -p] --test-cases <args>] [--class-path <args>]";
 
         try {
