@@ -18,6 +18,9 @@ import java.util.Vector;
  */
 public class Monitor {
 
+    private static long startTime = 0;
+    private static long endTime = 0;
+
     private static MonitorWorker realWorker;
     private static String MonitorWorkerType = null;
     private static File TraceFile = null;
@@ -146,6 +149,15 @@ public class Monitor {
             if ("r".equals(MonitorWorkerType)) {
                 // record
                 realWorker = new RecordMonitor(lockNum);
+            } else if ("S".equals(MonitorWorkerType)) {
+                // stride++ record
+                realWorker = new StridePPMonitor(lockNum);
+            } else if ("s".equals(MonitorWorkerType)) {
+                // stride record
+                realWorker = new StrideMonitor(lockNum);
+            } else if ("E".equals(MonitorWorkerType)) {
+                // empty
+                realWorker = new EmptyMonitor(lockNum);
             } else {
                 if ("R".equals(MonitorWorkerType)) {
                     // replay
@@ -157,8 +169,7 @@ public class Monitor {
                     // replay-examine
                     realWorker = new ReplayExamineMonitor(lockNum);
                 } else {
-                    // empty
-                    realWorker = new EmptyMonitor(lockNum);
+                    throw new RuntimeException("What monitor would you like to use?");
                 }
 
                 FileInputStream fis = new FileInputStream(TraceFile);
@@ -187,11 +198,14 @@ public class Monitor {
         System.out.println("*******************************");
         System.out.println("");
 
+        startTime = System.currentTimeMillis();
         realWorker.myInit(lockNum);
     }
 
     public static void myExit() {
+        endTime = System.currentTimeMillis();
         realWorker.myExit();
+        System.out.println(">>>>>>>>>>>> Time Cost: " + (endTime - startTime) + "ms");
     }
 
     public static void myCleanup() {

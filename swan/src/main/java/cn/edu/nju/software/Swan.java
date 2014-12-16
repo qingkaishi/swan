@@ -24,7 +24,7 @@ public class Swan {
 
     public static void main(String[] args) {
         Options opt = new Options();
-        
+
         opt.addOption("t", "transform", true, "transform the program to an instrumented version.");
 
         opt.addOption("r", "record", false, "record an exacution.");
@@ -40,8 +40,11 @@ public class Swan {
         opt.addOption("P", "class-path", true, "the class path of your SUT.");
         opt.addOption("h", "help", false, "print this information.");
 
+        opt.addOption("E", "empty-monitor", false, "determine whether use empty monitor");
+
         // for stride implementation
-        opt.addOption("S", "stride", false, "determine whether use stride transformation");
+        opt.addOption("S", "stridepp", false, "determine whether use stride++ monitor");
+        opt.addOption("s", "stride", false, "determine whether use stride monitor");
 
         String formatstr = "java [java-options] -jar swan.jar [--help] [--transform <main-class>] [--generate -T] [[--record] [--replay -T] [--replay-record -T -p] [--replay-examine -T -p] --test-cases <args>] [--class-path <args>]";
 
@@ -71,9 +74,6 @@ public class Swan {
                     mainArgs.add("-P");
                     mainArgs.add(cl.getOptionValue("P"));
                 }
-                if (cl.hasOption("S")) {
-                    mainArgs.add("-S");
-                }
                 String[] argsArray = new String[mainArgs.size()];
                 main.invoke(null, (Object) mainArgs.toArray(argsArray));
             } else if (cl.hasOption("g") && cl.hasOption("T")) {
@@ -87,6 +87,12 @@ public class Swan {
                 // check args
                 if (cl.hasOption("r") && cl.hasOption("c")) {
                     Monitor.setMonitorWorkerType("r");
+                } else if (cl.hasOption("S") && cl.hasOption("c")) {
+                    Monitor.setMonitorWorkerType("S");
+                } else if (cl.hasOption("s") && cl.hasOption("c")) {
+                    Monitor.setMonitorWorkerType("s");
+                } else if (cl.hasOption("E") && cl.hasOption("c")) {
+                    Monitor.setMonitorWorkerType("E");
                 } else if (cl.hasOption("T")) {
                     if (cl.hasOption("R") && cl.hasOption("c")) {
                         Monitor.setMonitorWorkerType("R");

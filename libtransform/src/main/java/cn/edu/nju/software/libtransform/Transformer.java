@@ -27,7 +27,6 @@ public class Transformer {
     public static void startTransform(String[] args) throws ParseException {
         Options opt = new Options();
         opt.addOption("t", "transform", true, "transform the program to an instrumented version.");
-        opt.addOption("S", "stride", false, "determine whether use stride transformation");
         opt.addOption("P", "class-path", true, "the class path of your SUT.");
         CommandLineParser parser = new PosixParser();
         CommandLine cl = parser.parse(opt, args);
@@ -43,12 +42,7 @@ public class Transformer {
 
         // jtp
         RecursiveVisitor vv = new RecursiveVisitor(null);
-        Visitor pv = null;
-        if (cl.hasOption("S")) {
-            pv = new VisitorForStrideInstrumentation(vv);
-        } else {
-            pv = new VisitorForInstrumentation(vv);
-        }
+        Visitor pv = new VisitorForInstrumentation(vv);
         pv.setObserverClass("cn.edu.nju.software.libmonitor.Monitor");
         TransformerForInstrumentation.v().setVisitor(pv);
         vv.setNextVisitor(pv);
