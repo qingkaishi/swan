@@ -188,6 +188,38 @@ public class TransformClass {
         soot.Main.main(args_soot);
         soot.G.reset();
     }
+    
+    // Hacked by ise
+    public void processAllAtOnce(String[] args, String mainClass, String sootCp, List<TransformTask> transformers) {
+        setRecordOptions();
+
+        Scene.v().setSootClassPath(
+                System.getProperty("sun.boot.class.path") + File.pathSeparator
+                + System.getProperty("java.class.path") + File.pathSeparator + sootCp);
+//        SootClass appclass = Scene.v().loadClassAndSupport(mainClass);
+//        Scene.v().setMainClass(appclass);
+
+        for (TransformTask t : transformers) {
+            PackManager.v().getPack(t.getPhase()).add(new Transform(t.getPhaseName(), t.getSootTransformer()));
+            if (t.getVisitor().observerClass != null) {
+                Scene.v().loadClassAndSupport(t.getVisitor().observerClass);
+            }
+        }
+
+//        String suffix = mainClass.replace('.', '_');
+//        String path = "./transformed_version_";
+//        if (Patch.v().isEmpty()) {
+//            path = path + suffix + "/";
+//        } else {
+//            path = path + "with_patches_" + suffix + "/";
+//        }
+//        String[] args_soot = {"-cp", ".", "-pp", "-validate", mainClass, "-d",
+//            path, "-f", "class", "-x", "jrockit.", "-x", "edu.", "-x",
+//            "com.", "-x", "checkers.", "-x", "org.xmlpull.", "-x",
+//            "org.apache.xml.", "-x", "org.apache.xpath.", "-x", "cn.edu.nju."};
+        soot.Main.main(args);
+        soot.G.reset();
+    }
 
     // HACKED by ise
     private void setRecordOptions() {

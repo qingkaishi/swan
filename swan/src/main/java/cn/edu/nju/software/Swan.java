@@ -46,6 +46,9 @@ public class Swan {
         opt.addOption("S", "stridepp", false, "determine whether use stride++ monitor");
         opt.addOption("s", "stride", false, "determine whether use stride monitor");
 
+        // soot args
+        opt.addOption("K", "soot", true, "arguments that should be passed to Soot");
+
         String formatstr = "java [java-options] -jar swan.jar [--help] [--transform <main-class>] [--generate -T] [[--record] [--replay -T] [--replay-record -T -p] [--replay-examine -T -p] --test-cases <args>] [--class-path <args>]";
 
         try {
@@ -73,6 +76,11 @@ public class Swan {
                 if (cl.hasOption("P")) {
                     mainArgs.add("-P");
                     mainArgs.add(cl.getOptionValue("P"));
+                }
+                if (cl.hasOption("K")) {
+                    System.out.println("Soot args: " + cl.getOptionValue("K"));
+                    mainArgs.add("-K");
+                    mainArgs.add(cl.getOptionValue("K"));
                 }
                 String[] argsArray = new String[mainArgs.size()];
                 main.invoke(null, (Object) mainArgs.toArray(argsArray));
@@ -163,6 +171,7 @@ public class Swan {
         } catch (ParseException e) {
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp(formatstr, opt);
+            e.printStackTrace();
             return;
         } catch (Exception e) {
             e.printStackTrace();

@@ -129,16 +129,7 @@ public class StrideMonitor extends MonitorWorker {
 
     @Override
     public void myBeforeSynchronizedInsInvoke(Object o, int svno, int lineno, String clsname, int debug) {
-        if (!start) {
-            return;
-        }
-        while (!threads.contains(Thread.currentThread())) {
-            Thread.yield();
-        }
-
-        int tid = threads.indexOf(Thread.currentThread());
-        Vector<Integer> lockLogForO = lockLog.get(svno);
-        lastOnePredictorAdd(lockLogForO, tid);
+        this.myAfterLock(o, svno, lineno, clsname, debug);
     }
 
     @Override
@@ -148,17 +139,12 @@ public class StrideMonitor extends MonitorWorker {
 
     @Override
     public void myBeforeSynchronizedStaticInvoke(Object o, int svno, int lineno, String clsname, int debug) {
-        if (!start) {
-            return;
-        }
         if (o instanceof String) {
-            while (!threads.contains(Thread.currentThread())) {
-                Thread.yield();
+            try {
+                this.myAfterLock(Class.forName((String)o), svno, lineno, clsname, debug);
+            } catch (ClassNotFoundException ex) {
+                ex.printStackTrace();
             }
-
-            int tid = threads.indexOf(Thread.currentThread());
-            Vector<Integer> lockLogForO = lockLog.get(svno);
-            lastOnePredictorAdd(lockLogForO, tid);
         } else {
             throw new RuntimeException("Unsupported synchronization object: " + o.toString() + ".");
         }

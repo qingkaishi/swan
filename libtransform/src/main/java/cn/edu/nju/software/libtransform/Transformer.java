@@ -28,6 +28,7 @@ public class Transformer {
         Options opt = new Options();
         opt.addOption("t", "transform", true, "transform the program to an instrumented version.");
         opt.addOption("P", "class-path", true, "the class path of your SUT.");
+        opt.addOption("K", "soot", true, "arguments that should be passed to Soot");
         CommandLineParser parser = new PosixParser();
         CommandLine cl = parser.parse(opt, args);
 
@@ -49,7 +50,13 @@ public class Transformer {
         trans.add(TransformerForInstrumentation.v());
 
         TransformClass processor = new TransformClass();
-        processor.processAllAtOnce(cl.getOptionValue("t"), cl.getOptionValue("P"), trans);
+
+        if (cl.hasOption("K")) {
+            String argString = cl.getOptionValue("K");
+            processor.processAllAtOnce(argString.split(" "), cl.getOptionValue("t"), cl.getOptionValue("P"),  trans);
+        } else {
+            processor.processAllAtOnce(cl.getOptionValue("t"), cl.getOptionValue("P"), trans);
+        }
 
         // test
         Visitor.st.test();

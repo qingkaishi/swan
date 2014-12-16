@@ -22,7 +22,7 @@ public class Monitor {
     private static long endTime = 0;
 
     private static MonitorWorker realWorker;
-    private static String MonitorWorkerType = null;
+    private static String MonitorWorkerType = "s";
     private static File TraceFile = null;
 
     public static void setMonitorWorkerType(String type) {
